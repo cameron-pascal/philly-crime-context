@@ -4,7 +4,6 @@
   "description": "A dashboard for exploring crime in Philadelphia",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
   },
   "repository": {
     "type": "git",
