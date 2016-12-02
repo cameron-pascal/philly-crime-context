@@ -1,9 +1,10 @@
 {
-  "name": "y",
+  "name": "philly-crime",
   "version": "0.0.1",
   "description": "A dashboard for exploring crime in Philadelphia",
   "main": "server.js",
   "scripts": {
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
