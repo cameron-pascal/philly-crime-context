@@ -198,6 +198,9 @@ h4{
 label{
   font-weight: 300;
 }
+.background .city_filters{
+  margin-left: 100px;
+}
 
 .background .macro_filters button{
   display: inline-block;
@@ -251,14 +254,14 @@ fieldset{
   border-radius: 5px;
 }
 
-.checkbox{
+.radio{
   display: block;
   position: relative;
   cursor: pointer;
   margin-bottom: 8px;
 }
 
-.checkbox input[type="checkbox"]{
+.radio input[type="radio"]{
   position: absolute;
   display: block;
   top: 0;
@@ -271,7 +274,7 @@ fieldset{
   z-index: 1;
 }
 
-.checkbox label{
+.radio label{
   display: inline-block;
   vertical-align: top;
   text-align: left;
@@ -279,14 +282,14 @@ fieldset{
   padding-left: 1.8em;
 }
 
-.checkbox label:before,
-.checkbox label:after{
+.radio label:before,
+.radio label:after{
   content: '';
   display: block;
   position: absolute;
 }
 
-.checkbox label:before{
+.radio label:before{
   left: 0;
   top: 0;
   width: 18px;
@@ -296,7 +299,7 @@ fieldset{
   border-radius: 3px;
 }
 
-.checkbox label:after{
+.radio label:after{
   content: '';
   position: absolute;
   top: 4px;
@@ -309,11 +312,15 @@ fieldset{
   pointer-events: none;
 }
 
-.checkbox input:checked ~ label:after{
+.radio input:checked ~ label:after{
   opacity: 1;
 }
 
-.checkbox input:focus ~ label:before{
+.radio input:unchecked ~ label:before{
+  opacity: 1;
+}
+
+.radio input:focus ~ label:before{
   background: #eee;
 }
 
