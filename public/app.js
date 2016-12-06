@@ -39,16 +39,6 @@ $(document).ready(function() {
         }
     });
 
-    $("#toggleDivisions").switchButton({
-        on_label: 'Political Ward Data',
-        off_label: 'Census Tract Data',
-        checked: true,
-        width: 100,
-        height: 30,
-        button_width: 50
-    });
-
-
     $("#map").igMap({
         width: "700px",
         height: "500px",
@@ -77,6 +67,35 @@ $(document).ready(function() {
             tooltipTemplate: "geoShapeTooltip"
         }]
     })
+
+    $('#commit-range').click(function() {
+        var bounds = $('#date').dateRangeSlider('option', 'bounds');
+        $.get('/api/crimes', {
+            start: parseInt(bounds.min.getTime() / 1000),
+            end: parseInt(bounds.max.getTime() / 1000)
+        }).done(function(data) {
+            var ghdsSeries = {
+                type: "geographicHighDensityScatter",
+                name: "crimeHeatMap",
+                dataSource: data,
+                latitudeMemberPath: "x",
+                longitudeMemberPath: "y",
+                heatMinimum: 0,
+                heatMaximum: 5
+            }
+            var series = $("#map").igMap('option', 'series');
+            $("#map").igMap('option', 'series', series.push(ghdsSeries));
+        });
+    })
+
+    $("#toggleDivisions").switchButton({
+        on_label: 'Political Ward Data',
+        off_label: 'Census Tract Data',
+        checked: true,
+        width: 100,
+        height: 30,
+        button_width: 50
+    });
 
     $("#toggleDivisions").change(function() {
         if ($("#toggleDivisions").is(":checked")) {

@@ -12,8 +12,7 @@ const params = url.parse(process.env.DATABASE_URL || 'postgres://localhost:5432/
 const config = {
   host: params.hostname,
   port: params.port,
-  database: params.pathname.split('/')[1],
-  idleTimeoutMillis: 1000
+  database: params.pathname.split('/')[1]
 };
 
 const Pool = require('pg-pool')
