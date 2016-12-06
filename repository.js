@@ -12,8 +12,7 @@ const params = url.parse(process.env.DATABASE_URL || 'postgres://localhost:5432/
 const config = {
   host: params.hostname,
   port: params.port,
-  database: params.pathname.split('/')[1],
-  idleTimeoutMillis: 1000
+  database: params.pathname.split('/')[1]
 };
 
 const Pool = require('pg-pool')
@@ -213,8 +212,8 @@ function getCrimesInRange(req, res, next) {
   var startDate = req.query.start;
   var endDate = req.query.end;
   var philly = "Philadelphia County";
-
-  pool.query('select st_X(dispatch_location) as x, st_Y(dispatch_location) as y, dc_number as id from public.philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
+  
+  pool.query('select st_X(dispatch_location) as x, st_Y(dispatch_location) as y, census_ref as tractId from public.philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
     .then(function (data) {
       var firstData = data;
       pool.query('select count(dc_number) as crimeCount from public.philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
