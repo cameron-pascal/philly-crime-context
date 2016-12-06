@@ -9,4 +9,7 @@ router.get('/', function(req, res) {
 
 router.get('/api/crimes', repository.getCrimesInRange);
 
+router.get('/api/crimes/:tractId', repository.getTractSummary);
+router.get('/api/filter', repository.getFilterGIDs)
+
 module.exports = router;
