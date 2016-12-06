@@ -1,8 +1,12 @@
-var express = require('express');
-var router = express.Router();
+const express = require('express');
+const router = express.Router();
 
-var repository = require('../repository');
+const repository = require('../repository');
 
-//router.get('/api/something', repository.getAllSomethings);
+router.get('/', function(req, res) {
+    res.sendFile('../public/index.html')
+});
+
+router.get('/api/crimes', repository.getCrimesInRange);
 
 module.exports = router;

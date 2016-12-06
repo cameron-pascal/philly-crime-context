@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 //var favicon = require('serve-favicon');
 const logger = require('morgan');
+const compression = require('compression');
 
 const routes = require('./routes/index');
 
@@ -10,8 +11,8 @@ const app = express();
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(compression());
 
 app.use('/', routes);
 
@@ -38,5 +39,6 @@ app.use(function(err, req, res, next) {
     message: err.message
   });
 });
+
 
 module.exports = app;
