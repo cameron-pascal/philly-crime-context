@@ -29,6 +29,7 @@
   "devDependencies": {},
   "dependencies": {
     "bluebird": "^3.3.4",
+    "compression": "^1.6.2",
     "express": "~4.13.1",
     "morgan": "~1.6.1",
     "pg-pool": "^1.6.0",
