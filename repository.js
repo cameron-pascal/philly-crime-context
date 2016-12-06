@@ -23,7 +23,7 @@ function getCrimesInRange(req, res, next) {
   var startDate = req.query.start;
   var endDate = req.query.end;
 
-  pool.query('select st_X(dispatch_location) as x, st_Y(dispatch_location) as y from public.philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
+  pool.query('select st_X(dispatch_location) as x, st_Y(dispatch_location) as y, census_ref as tractId from public.philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
     .then(function (data) {
       res.status(200)
         .json(data.rows);
