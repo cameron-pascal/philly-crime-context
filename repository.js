@@ -212,11 +212,11 @@ function getCrimesInRange(req, res, next) {
   var startDate = req.query.start;
   var endDate = req.query.end;
   var philly = "Philadelphia County";
-  
+
   pool.query('select st_X(dispatch_location) as x, st_Y(dispatch_location) as y, census_ref as tractId from public.philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
     .then(function (data) {
       var firstData = data;
-      pool.query('select count(dc_number) as crimeCount from public.philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
+      pool.query('SELECT sum(case when crime_type  = 1 then 1 else 0 end) as nonviolent, sum(case when  crime_type  = 2 then 1 else 0 end) as homicide, sum(case when  crime_type  = 3 then 1 else 0 end) as violent, sum(case when  crime_type  = 4 then 1 else 0 end) as property, sum(case when  crime_type  = 5 then 1 else 0 end) as sexualcrimes from philly_crime_incidents where to_timestamp('+ startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
         .then(function (data) {
           var secondData = data;
                 pool.query("SELECT total_population as totalPop, median_age as medAge, total_housing_units as totalHousingUnits, homeowner_vacancy_rate_percentage as homeVacancyRatePercentage FROM census_tracts_demographic_data where tract = 'Philadelphia County' ")
@@ -253,8 +253,171 @@ function getCrimesInRange(req, res, next) {
 
 }
 
+function getTractFilters(req, res, next) {
+
+
+  var startTime = req.query.startTime;
+  var endTime = req.query.endTime;
+  var gidList = req.query.GID;
+  var crimeType = req.query.crimeTypes;
+  
+  var conditions = req.query.crimeWeather;
+  //crimeWeather
+  /*
+  clear weather =1 clear 0-49
+  Cloudy  =2 50+
+  Rain =percipitaiton > 0
+  Snow =4 snow > 0
+  */
+  var clear = null;
+  var cloudy = null;
+  var rain = null;
+  var snow = null;
+  var filternum = 0;
+  var con;
+
+  var indecies = [4];
+  if(conditions[0] == true){
+    clear = "(w.cloudavg >= 0 AND w.cloudavg <= 49)"
+    filternum++;
+    indecies[filternum-1] = clear;
+  }
+  if (conditions[1] == true){
+    cloudy = "(w.cloudavg >= 50 AND w.cloudavg <= 100)"
+    filternum++;
+    indecies[filternum-1] = cloudy;
+  }
+  if (conditions[2] == true){
+    rain = "(w.prcp > 0)"
+    filternum++;
+    indecies[filternum-1] = rain;
+  }
+  if (conditions[3] == true){
+    snow = "(w.snow > 0)"
+    filternum++;
+    indecies[filternum-1] = snow;
+  }
+
+  if (filternum == 4){
+      con = clear + ' OR ' + cloudy + ' OR ' + rain + ' OR ' + snow;
+  } else if (filternum == 3){
+    var first = false;
+    var second = false;
+    var third = false;
+      for(var i = 0; i < 4; i++){
+        if(indecies[i] != null){
+          if (first == false){
+            con = indecies[i];
+            first = true;
+          } else if (second == false){
+            con = con + " OR " + indecies[i];
+            second = false;
+          } else if (third == false){
+            con = con + " OR " + indecies[i];
+            third = true;
+          }
+        }
+      }
+  } else if (filternum == 2){
+    var temp;
+    if(conditions[0] == true){
+        temp = clear;
+        if (conditions[1] == true){
+          con = temp + " OR " + cloudy;
+        } else if (conditions [2] == true){
+          con = temp + " OR " + rain;
+        } else if (conditions [2] == true){
+          con = temp + " OR " + snow;
+        }
+    } else if(conditions[1] == true){
+        temp = cloudy;
+    } else if(conditions[2] == true){
+        temp = rain;
+    } else if(conditions[3] == true){
+        temp = snow;
+    }
+  } else if (filternum == 1){
+    con = clear + cloudy + rain + snow; 
+  }
+  
+
+  var dayOrNight = req.query.crimeTime;
+  //crimeTime
+  //Day =1 06 - 20
+  //Night =2 20 - 06
+  //EXTRACT(HOUR FROM dispatch_date_time) > 18
+    
+  var day;
+  var night;
+  var dorn;
+  //daytime
+  if(dayOrNight[0] == true){
+    day = "(EXTRACT(HOUR FROM dispatch_date_time) <= 20 AND EXTRACT(HOUR FROM dispatch_date_time) >= 06)"
+  }
+  //nighttime
+  if(dayOrNight[1] == true){
+    night = "(EXTRACT(HOUR FROM dispatch_date_time) <= 06 OR EXTRACT(HOUR FROM dispatch_date_time) >= 20)"
+  }
+
+  //both
+  if(dayOrNight[0] == true && dayOrNight[1] == true){
+    dorn = "((EXTRACT(HOUR FROM dispatch_date_time) <= 06 OR EXTRACT(HOUR FROM dispatch_date_time) >= 20) OR (EXTRACT(HOUR FROM dispatch_date_time) <= 20 AND EXTRACT(HOUR FROM dispatch_date_time) >= 06))"
+  } else if (dayOrNight[0] == true && dayOrNight[1] == false){
+    dorn = day;
+  } else {
+    dorn = night;
+  }
+
+  var query = 'SELECT dc_number as dcNum, st_X(dispatch_location) as x, st_Y(dispatch_location) as y, dispatch_date_time as timeOfCrime, general_crime_category as crime, w.tmax as maxTemp, w.tmin as minTemp from philly_crime_incidents, philly_weather w where (census_ref=1) AND to_timestamp(' + start + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+end+') AND (crimetype) AND (weatherConditions) AND (timeofday) AND w.begintime = weather_ref'
+
+  //list of GIDs 4 max, 1-5, 1-5, 1-5 
+  //Day 06 - 20
+  //Night 20 - 06
+  /*
+  SELECT dc_number as dcNum, st_X(dispatch_location) as x, st_Y(dispatch_location) as y, dispatch_date_time as timeOfCrime, general_crime_category as crime, w.tmax as maxTemp, w.tmin as minTemp
+  from philly_crime_incidents, philly_weather w
+  where (census_ref = 1 OR census_ref = 2) 
+  AND to_timestamp(1199145600) <= dispatch_date_time AND dispatch_date_time <= to_timestamp(1230768000)
+  AND (crime_type = 1 OR crime_type = 4)
+  AND w.snow > 0
+  AND (EXTRACT(HOUR FROM dispatch_date_time) > 18)
+  AND w.begintime = weather_ref
+  */
+
+  //input: {startTime, endTime, GID[], crimeTypes[bool, bool, bool, bool, bool] , crimeWeather[bool,bool,bool,bool] , crimeTime[bool,bool]}
+
+  //?arr[]=1&arr[]=2&arr[]=3&arr[]=4
+
+  //crimeTypes
+  /*
+  Non-violent / Other =1 
+  Homicide =2
+  Violent =3
+  Property =4
+  Sexual Crimes =5
+  */
+
+  //crimeWeather
+  /*
+  clear weather =1 clear 0-49
+  Cloudy  =2 50+
+  Rain =percipitaiton > 0
+  Snow =4 snow > 0
+  */
+
+  pool.query('Select a.gid as gid, a.tract_name as tractName, c.median_age as medAge, c.total_population as totalPop, b."HC03_VC13" as percentUnemployed, b."HC01_VC85" as medianHouseholdIncome, c.homeowner_vacancy_rate_percentage as homeOwnerVacancy, b."HC03_VC166" as povertyRate from census_tracts a JOIN census_tracts_economic_data b ON a.economic_data_ref = b.tract_economic_id JOIN census_tracts_demographic_data c ON a.economic_data_ref = c.tract_demographic_id where a.gid =' + tractGID +'')
+    .then(function (data) {
+      res.status(200)
+        .json(data.rows);
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+}
+
 module.exports = {
   getCrimesInRange: getCrimesInRange,
   getTractSummary: getTractSummary,
-  getFilterGIDs: getFilterGIDs
+  getFilterGIDs: getFilterGIDs,
+  getTractFilters: getTractFilters
 };
