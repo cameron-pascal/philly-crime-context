@@ -87,9 +87,13 @@ h1 {
 .background .daterange{
     padding: 10px 0 50px;
     margin-bottom: 10px;
+    font-size:15px;
     overflow: hidden;
     align-content: center;
     border-bottom: 1px solid rgba(0,0,0, .15);
+}
+.background .daterange h4{
+      text-align:center;
 }
 .background .daterange .date{
     width: 850px;
@@ -97,15 +101,39 @@ h1 {
     margin-left: 50px;
     margin-right: 50px;
 }
-
+#guidance{
+  float:right;
+  margin-right:20px;
+  font-size:15px;
+}
 .background .city_summary{
-    padding: 10px 0 50px;
-    margin-bottom: 10px;
+    padding: 10px 0 0;
     overflow: hidden;
     align-content: center;
-    border-bottom: 1px solid rgba(0,0,0, .15);
+}
+.background .city_summary h5{
+  margin-left:40px;
+  font-size:25px;
+}
+#start-date{
+  display:inline;
+  font-weight: bold;
+}
+#end-date{
+  display:inline;
+  font-weight: bold;
 }
 
+.city_summary ul{
+  position:relative;
+  margin-left:80px;
+  font-size:20px;
+}
+#summary-text{
+  position:relative;
+  margin-left:40px;
+  font-size:20px;
+}
 .background .viewselector {
   padding-top: 10px;
   display: flex;
@@ -234,7 +262,9 @@ label{
   display: inline-block;
   vertical-align: top;
   padding: .5em;
-  margin: 0;
+  margin-top:20px;
+  margin-left:10px;
+  margin-right:10px;
   background: #68a1d6;
   border: 0;
   color: #eee;
@@ -251,6 +281,10 @@ label{
 .micro_filters{
   /*background: #333;*/
   padding: 2%;
+  margin-left:27%;
+}
+#micro-button-bar{
+  margin-left:80px;
 }
  
 fieldset{
@@ -270,6 +304,19 @@ fieldset{
 }
 
 .radio input[type="radio"]{
+  position: absolute;
+  display: block;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  cursor: pointer;
+  margin: 0;
+  opacity: 0;
+  z-index: 1;
+}
+
+.radio input[type="checkbox"]{
   position: absolute;
   display: block;
   top: 0;

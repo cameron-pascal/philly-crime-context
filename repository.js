@@ -8,12 +8,19 @@ const pgp = require('pg-promise')(options);
 const url = require('url');
 
 const params = url.parse(process.env.DATABASE_URL || 'postgres://localhost:5432/postgres');
-
 const config = {
   host: params.hostname,
   port: params.port,
   database: params.pathname.split('/')[1]
 };
+
+if (process.env.NODE_ENV == 'production') {
+  const auth = params.auth.split(':');
+  config.auth = auth[1];
+  config.ssl = true;
+  config.max = 20;
+  config.min = 4;
+}
 
 const Pool = require('pg-pool')
 const pool = new Pool(config);

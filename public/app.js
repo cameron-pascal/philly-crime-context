@@ -1,6 +1,7 @@
 $(document).ready(function() {
     $("#crime-filters").toggle();
     $("#city_filters").toggle();
+    $("#city_summary").toggle();
 
     $('#toggleDivisions').val($(this).is(':checked'));
 
@@ -8,7 +9,9 @@ $(document).ready(function() {
         $("#crime-filters:visible").toggle("medium");
         $("#macro-filters").toggle("medium");
     });
-        
+    
+
+
     $( document ).ajaxStart(function() {
         $.blockUI({
             message:$('#domMessage'),
@@ -292,22 +295,19 @@ $(document).ready(function() {
     }
 
     $('#commit-range').click(function() {
-
         if ($("#toggleDivisions").is(":checked")) {
-            // document.getElementsByClassName('switch-button-button').trigger("click");
-            // console.log(x);
             $("#toggleDivisions").switchButton("toggle");
         }
-
         var max = $("#date").dateRangeSlider("max");
-        console.log(max.toString());
         var min = $('#date').dateRangeSlider('min');
-        console.log(min.toString());
         $.get('/api/crimes', {
             start: parseInt(min.getTime() / 1000),
             end: parseInt(max.getTime() / 1000)
         }).done(function(data) {
-            console.log(data);
+
+            var cData = data.totalCrimes.rows[0];
+            showSummary(parseInt(cData.nonviolent),parseInt(cData.violent),parseInt(cData.property),parseInt(cData.sexualcrimes),parseInt(cData.homicide));
+            
             var series = $("#map").igMap('option', 'series');
             var colorPicker = new ColorPickerByIndex(data.points.rows);
             var styleSelector = createStyleSelector(colorPicker);
@@ -366,11 +366,76 @@ $(document).ready(function() {
         });
     });
 
+    $("#macro-go").click(function(){
+        var age = $("input[name=age]:checked").val(); 
+        var ue = $("input[name=ue]:checked").val(); 
+        var inc = $("input[name=inc]:checked").val(); 
+        var vac = $("input[name=vac]:checked").val(); 
+        var pov = $("input[name=pov]:checked").val(); 
+        $.get('/api/filter', {
+             medianAge:age,
+             unemployment:ue,
+             medianIncome:inc,
+             vacancyRate:vac,
+             povertyRate:pov
+        }).done(function(data){
+            console.log(data);
+        });
+    });
+
+    $("#micro-go").click(function(){
+        var age = $("input[name=age]:checked").val(); 
+        var ue = $("input[name=ue]:checked").val(); 
+        var inc = $("input[name=inc]:checked").val(); 
+        var vac = $("input[name=vac]:checked").val(); 
+        var pov = $("input[name=pov]:checked").val(); 
+        $.get('/api/filter', {
+             medianAge:age,
+             unemployment:ue,
+             medianIncome:inc,
+             vacancyRate:vac,
+             povertyRate:pov
+        }).done(function(data){
+            console.log(data);
+        });
+    });
+
+
+    function numberWithCommas(x) {
+        return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+    
+    function showSummary(nonv, violent, propcrime, sexcrime, homicide){
+        var sDate = new Date($("#date").dateRangeSlider("min"));
+        var eDate = new Date($("#date").dateRangeSlider("max"));
+
+
+        var crimes = nonv+violent+propcrime+sexcrime+homicide;
+        console.log(crimes);
+        // var crimeData = [
+        //     { "CrimeType": "Homicide", "Incidents": homicide}, 
+        //     { "CrimeType": "Sex Crime", "Incidents": sexcrime}, 
+        //     { "CrimeType": "Non-Violent / Other", "Incidents": nonv},
+        //     { "CrimeType": "Property Crime", "Incidents": propcrime}, 
+        //     { "CrimeType": "Violent Crime", "Incidents": violent }
+        // ];
+        document.getElementById("start-date").innerHTML = sDate.toLocaleDateString();
+        document.getElementById("end-date").innerHTML = eDate.toLocaleDateString();
+
+        document.getElementById("total-city-crimes").innerHTML = numberWithCommas(crimes);
+        document.getElementById("sum-hom").innerHTML = numberWithCommas(homicide);
+        document.getElementById("sum-sex").innerHTML = numberWithCommas(sexcrime);
+        document.getElementById("sum-vio").innerHTML = numberWithCommas(violent);
+        document.getElementById("sum-nvi").innerHTML = numberWithCommas(nonv);
+        document.getElementById("sum-pro").innerHTML = numberWithCommas(propcrime);
+        $("#city_summary").show();
+}
+
+function getAgeVal() {
+    var x = $("input[name=radio-choice-1]:checked").val(); 
+    console.log(x);
+}
+
 })
 
 
-
-
-function getAgeVal() {
-    $('input[name=age]:checked', '#myForm').val()
-}
