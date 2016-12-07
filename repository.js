@@ -143,8 +143,6 @@ function getFilterGIDs(req, res, next) {
         vacrate = '0 <= c.homeowner_vacancy_rate_percentage AND c.homeowner_vacancy_rate_percentage <= 100'
         break;
 }
-  
-
   var povertyRate = parseInt(req.query.povertyRate);
   //0-3.9 =1
   //4-6.9 =2
@@ -173,8 +171,6 @@ function getFilterGIDs(req, res, next) {
         break;
 }
 var query = 'Select a.gid as gid from census_tracts a JOIN census_tracts_economic_data b ON a.economic_data_ref = b.tract_economic_id JOIN census_tracts_demographic_data c ON a.economic_data_ref = c.tract_demographic_id where '+ medAge +' AND ' + unemp + ' AND ' + medinc + ' AND ' + vacrate + ' AND ' + povrate +'';
-  
-
   pool.query(query)
     .then(function (data) {
       res.status(200)
@@ -255,13 +251,95 @@ function getCrimesInRange(req, res, next) {
 
 function getTractFilters(req, res, next) {
 
-
+//start time
   var startTime = req.query.startTime;
+  //end time
   var endTime = req.query.endTime;
+
+//list of GIDS
   var gidList = req.query.GID;
+  var gidArray = gidList.split(',')
+  var census;
+  var censusLen = gidArray.length;
+  if (gidArray.length >= 5){
+    census = 'census_ref = '+gidArray[0]+' OR census_ref = '+gidArray[1]+' OR census_ref = '+gidArray[2]+' OR census_ref = '+gidArray[3]+' OR census_ref = '+gidArray[4]+''
+  } else {
+    if (censusLen == 1){
+        census = 'census_ref = '+gidArray[0]+''
+    } else if (censusLen == 2 ){
+        census = 'census_ref = '+gidArray[0]+' OR census_ref = '+gidArray[1]+''
+    } else if (censusLen == 3 ){
+        'census_ref = '+gidArray[0]+' OR census_ref = '+gidArray[1]+' OR census_ref = '+gidArray[2]+''
+    } else if (censusLen == 4 ){
+      census = 'census_ref = '+gidArray[0]+' OR census_ref = '+gidArray[1]+' OR census_ref = '+gidArray[2]+' OR census_ref = '+gidArray[3]+''
+    }
+  }
+
+  //the crimetype
   var crimeType = req.query.crimeTypes;
+  var crimeArray = crimeType.split(',')
+
+  var nonviolent = "(crime_type = 1)";
+  var homicide = "(crime_type = 2)";
+  var violent = "(crime_type = 3)";
+  var property = "(crime_type = 4)";
+  var sexcrimes = "(crime_type = 5)";
+
+  var numTrues = 0;
+  var crimeQuery;
+
+  for (var i = 0; i < crimeArray.length; i++){
+    if (crimeArray[i] == true){
+      numTrues = numTrues + 1;
+    }
+  }
+
+  var TruesArray = [];
+
+  if(crimeArray[0] == true){
+      TruesArray.push(nonviolent)
+  } 
+  if(crimeArray[1] == true){
+      TruesArray.push(homicide)
+  } 
+  if(crimeArray[2] == true){
+      TruesArray.push(violent)
+  } 
+  if(crimeArray[3] == true){
+      TruesArray.push(property)
+  } 
+  if(crimeArray[4] == true){
+      TruesArray.push(sexcrimes)
+  } 
+
+  if(numTrues == 1){
+      crimeQuery = TruesArray[0];
+  } else if (numTrues == 2){
+      crimeQuery = TruesArray[0] + " OR " + TruesArray[1];
+  } else if (numTrues == 3){
+      crimeQuery = TruesArray[0] + " OR " + TruesArray[1] + " OR " + TruesArray[2];
+  } else if (numTrues == 4){
+      crimeQuery = TruesArray[0] + " OR " + TruesArray[1] + " OR " + TruesArray[2] + " OR " + TruesArray[3];
+  } else if (numTrues == 5){
+      crimeQuery = TruesArray[0] + " OR " + TruesArray[1] + " OR " + TruesArray[2] + " OR " + TruesArray[3] + " OR " + TruesArray[4];
+  }
+
+
+  //assign query to each
+  //get number of trues
+  //get the trues into a different array
+  //check per number of trues 
+    //crimeTypes
+  /*
+  Non-violent / Other =1 
+  Homicide =2
+  Violent =3
+  Property =4
+  Sexual Crimes =5
+  */
   
   var conditions = req.query.crimeWeather;
+  //condition.to
   //crimeWeather
   /*
   clear weather =1 clear 0-49
@@ -269,30 +347,33 @@ function getTractFilters(req, res, next) {
   Rain =percipitaiton > 0
   Snow =4 snow > 0
   */
-  var clear = null;
-  var cloudy = null;
-  var rain = null;
-  var snow = null;
+  var clear = "";
+  var cloudy = "";
+  var rain = "";
+  var snow = "";
+
   var filternum = 0;
   var con;
 
+  var condarray = conditions.split(',')
   var indecies = [4];
-  if(conditions[0] == true){
+
+  if(condarray[0] == 1){
     clear = "(w.cloudavg >= 0 AND w.cloudavg <= 49)"
     filternum++;
     indecies[filternum-1] = clear;
   }
-  if (conditions[1] == true){
+  if (condarray[1] == 1){
     cloudy = "(w.cloudavg >= 50 AND w.cloudavg <= 100)"
     filternum++;
     indecies[filternum-1] = cloudy;
   }
-  if (conditions[2] == true){
+  if (condarray[2] == 1){
     rain = "(w.prcp > 0)"
     filternum++;
     indecies[filternum-1] = rain;
   }
-  if (conditions[3] == true){
+  if (condarray[3] == 1){
     snow = "(w.snow > 0)"
     filternum++;
     indecies[filternum-1] = snow;
@@ -311,7 +392,7 @@ function getTractFilters(req, res, next) {
             first = true;
           } else if (second == false){
             con = con + " OR " + indecies[i];
-            second = false;
+            second = true;
           } else if (third == false){
             con = con + " OR " + indecies[i];
             third = true;
@@ -320,20 +401,20 @@ function getTractFilters(req, res, next) {
       }
   } else if (filternum == 2){
     var temp;
-    if(conditions[0] == true){
+    if(condarray[0] == true){
         temp = clear;
-        if (conditions[1] == true){
+        if (condarray[1] == true){
           con = temp + " OR " + cloudy;
-        } else if (conditions [2] == true){
+        } else if (condarray [2] == true){
           con = temp + " OR " + rain;
-        } else if (conditions [2] == true){
+        } else if (condarray [2] == true){
           con = temp + " OR " + snow;
         }
-    } else if(conditions[1] == true){
+    } else if(condarray[1] == true){
         temp = cloudy;
-    } else if(conditions[2] == true){
+    } else if(condarray[2] == true){
         temp = rain;
-    } else if(conditions[3] == true){
+    } else if(condarray[3] == true){
         temp = snow;
     }
   } else if (filternum == 1){
@@ -342,6 +423,7 @@ function getTractFilters(req, res, next) {
   
 
   var dayOrNight = req.query.crimeTime;
+  var dornArr = dayOrNight.split(',')
   //crimeTime
   //Day =1 06 - 20
   //Night =2 20 - 06
@@ -351,24 +433,24 @@ function getTractFilters(req, res, next) {
   var night;
   var dorn;
   //daytime
-  if(dayOrNight[0] == true){
+  if(dornArr[0] == true){
     day = "(EXTRACT(HOUR FROM dispatch_date_time) <= 20 AND EXTRACT(HOUR FROM dispatch_date_time) >= 06)"
   }
   //nighttime
-  if(dayOrNight[1] == true){
+  if(dornArr[1] == true){
     night = "(EXTRACT(HOUR FROM dispatch_date_time) <= 06 OR EXTRACT(HOUR FROM dispatch_date_time) >= 20)"
   }
 
   //both
-  if(dayOrNight[0] == true && dayOrNight[1] == true){
+  if(dornArr[0] == true && dornArr[1] == true){
     dorn = "((EXTRACT(HOUR FROM dispatch_date_time) <= 06 OR EXTRACT(HOUR FROM dispatch_date_time) >= 20) OR (EXTRACT(HOUR FROM dispatch_date_time) <= 20 AND EXTRACT(HOUR FROM dispatch_date_time) >= 06))"
-  } else if (dayOrNight[0] == true && dayOrNight[1] == false){
+  } else if (dornArr[0] == true && dornArr[1] == false){
     dorn = day;
   } else {
     dorn = night;
   }
 
-  var query = 'SELECT dc_number as dcNum, st_X(dispatch_location) as x, st_Y(dispatch_location) as y, dispatch_date_time as timeOfCrime, general_crime_category as crime, w.tmax as maxTemp, w.tmin as minTemp from philly_crime_incidents, philly_weather w where (census_ref=1) AND to_timestamp(' + start + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+end+') AND (crimetype) AND (weatherConditions) AND (timeofday) AND w.begintime = weather_ref'
+  var finquery = 'SELECT dc_number as dcNum, st_X(dispatch_location) as x, st_Y(dispatch_location) as y, dispatch_date_time as timeOfCrime, general_crime_category as crime, w.tmax as maxTemp, w.tmin as minTemp from philly_crime_incidents, philly_weather w where (' + census + ') AND to_timestamp(' + startTime + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+endTime+') AND ('+ crimeQuery +') AND ('+ con +') AND ('+ dorn +') AND w.begintime = weather_ref'
 
   //list of GIDs 4 max, 1-5, 1-5, 1-5 
   //Day 06 - 20
@@ -388,24 +470,7 @@ function getTractFilters(req, res, next) {
 
   //?arr[]=1&arr[]=2&arr[]=3&arr[]=4
 
-  //crimeTypes
-  /*
-  Non-violent / Other =1 
-  Homicide =2
-  Violent =3
-  Property =4
-  Sexual Crimes =5
-  */
-
-  //crimeWeather
-  /*
-  clear weather =1 clear 0-49
-  Cloudy  =2 50+
-  Rain =percipitaiton > 0
-  Snow =4 snow > 0
-  */
-
-  pool.query('Select a.gid as gid, a.tract_name as tractName, c.median_age as medAge, c.total_population as totalPop, b."HC03_VC13" as percentUnemployed, b."HC01_VC85" as medianHouseholdIncome, c.homeowner_vacancy_rate_percentage as homeOwnerVacancy, b."HC03_VC166" as povertyRate from census_tracts a JOIN census_tracts_economic_data b ON a.economic_data_ref = b.tract_economic_id JOIN census_tracts_demographic_data c ON a.economic_data_ref = c.tract_demographic_id where a.gid =' + tractGID +'')
+  pool.query(finquery)
     .then(function (data) {
       res.status(200)
         .json(data.rows);
