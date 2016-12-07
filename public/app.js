@@ -383,6 +383,24 @@ $(document).ready(function() {
         });
     });
 
+    $("#micro-go").click(function(){
+        var age = $("input[name=age]:checked").val(); 
+        var ue = $("input[name=ue]:checked").val(); 
+        var inc = $("input[name=inc]:checked").val(); 
+        var vac = $("input[name=vac]:checked").val(); 
+        var pov = $("input[name=pov]:checked").val(); 
+        $.get('/api/filter', {
+             medianAge:age,
+             unemployment:ue,
+             medianIncome:inc,
+             vacancyRate:vac,
+             povertyRate:pov
+        }).done(function(data){
+            console.log(data);
+        });
+    });
+
+
     function numberWithCommas(x) {
         return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
