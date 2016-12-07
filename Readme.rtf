@@ -5,41 +5,29 @@
 \margl1440\margr1440\vieww10800\viewh8400\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
 
-\f0\fs24 \cf0 Ariel Shaposhnik\
-Cameron Pascal\
-Dean Keinan
-\b \ul \
+\f0\b\fs24 \cf0 \ul \ulc0 Queries\
+\ulnone Tract Summaries\ul \
 
-\fs48 Readme\
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
-
-\b0\fs28 \cf0 \ulc0 Infrastructure\
-
-\fs24 \ulnone We used Heroku for our infrastructure and deployment. Heroku handles deployment for us through git commands, when we push to our GitHub Heroku recognizes it and updates our project accordingly. Furthermore it was very easy to set up.\
-
-\b\fs48 \ul \ulc0 \
-\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
-
-\b0\fs28 \cf0 \ulc0 Database\
-
-\fs24 \ulnone For our database we chose to utilize PostgreSQL. We had a few reasons to do this, one of which being that PostgreSQL is very advanced, it has complete support for reliable transactions. This way we would ensure Atomicity and Consistency of our database. PostgreSQL is extremely efficient and can handle many tasks at once. Another very important reason we used PostgreSQL is because of its many data types, since our project aims to show data on an Interactable map, having shape, path and point datatypes really helped bring everything together. \
-\
-We compiled different points of data, in our database we have Philly crime data for the last 10 years, this includes the location, type of crime among other identifies that we added. We used foreign keys to link up our data bases.\
-\
-We got weather data for the last 10, we referenced back to the crimes, one day of weather had a reference to many crimes in the crime table.\
-\
-We got census tracts in Philly, and using the same technique we did with weather, we linked up many crimes to the census tracts they occurred in. This is where our shape types came in very useful. The census tract consisted of two other tables, specifically economic data and demographic data per tract. Each of those linked back to the census tract which in turn linked back to crime in order to easily find what we are looking for.\
+\b0 \ulnone Select a.gid as gid, a.tract_name as tractName, c.median_age as medAge, c.total_population as totalPop, b."HC03_VC13" as percentUnemployed, b."HC01_VC85" as medianHouseholdIncome, c.homeowner_vacancy_rate_percentage as homeOwnerVacancy, b."HC03_VC166" as povertyRate from census_tracts a JOIN census_tracts_economic_data b ON a.economic_data_ref = b.tract_economic_id JOIN census_tracts_demographic_data c ON a.economic_data_ref = c.tract_demographic_id where a.gid =' + tractGID +'')\
 \
 
-\fs28 \ul Backend\
+\b Filter tracts on Map
+\b0 \
+Select a.gid as gid from census_tracts a JOIN census_tracts_economic_data b ON a.economic_data_ref = b.tract_economic_id JOIN census_tracts_demographic_data c ON a.economic_data_ref = c.tract_demographic_id where '+ medAge +' AND ' + unemp + ' AND ' + medinc + ' AND ' + vacrate + ' AND ' + povrate +''\
+\ul \
 
-\fs24 \ulnone For our communication with the database we decided to build a RESTful api server with Express. To build this we used node.js. The main reasons we decided to utilize node is because it is quick and easy to set up, it handles the dependencies for you, and horuku supported it. Our server is built as a middleware between the client end and database. The server handles GET requests from the client, then executes the appropriate query, and returns a JSON file which is easy to read from the front end.\
+\b \ulnone Get points on map, and Citywide summary\
 
-\fs28 \ul \
-Frontend\
+\b0 pool.query('select st_X(dispatch_location) as x, st_Y(dispatch_location) as y, census_ref as tractId from public.philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')\
+ \
+pool.query('SELECT sum(case when crime_type  = 1 then 1 else 0 end) as nonviolent, sum(case when  crime_type  = 2 then 1 else 0 end) as homicide, sum(case when  crime_type  = 3 then 1 else 0 end) as violent, sum(case when  crime_type  = 4 then 1 else 0 end) as property, sum(case when  crime_type  = 5 then 1 else 0 end) as sexualcrimes from philly_crime_incidents where to_timestamp('+ startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')\
+\
+pool.query("SELECT total_population as totalPop, median_age as medAge, total_housing_units as totalHousingUnits, homeowner_vacancy_rate_percentage as homeVacancyRatePercentage FROM census_tracts_demographic_data where tract = 'Philadelphia County' ")\
+\
+pool.query("SELECT a.\\"HC03_VC13\\" as percentUnemployed, a.\\"HC01_VC85\\" as medianHouseholdIncome, a.\\"HC03_VC166\\" as percentPovertyRate, a.\\"HC01_VC115\\" as perCapitaIncome FROM census_tracts_economic_data a where tract = 'Philadelphia County'")\
+\
 
-\fs24 \ulnone Our front end was created in javascript using j-query and infragistic web tools
-\fs28 \ul \
-
-\fs24 \ulnone \
+\b Get tract filters to display crimes on map with information
+\b0 \
+'SELECT dc_number as dcNum, st_X(dispatch_location) as x, st_Y(dispatch_location) as y, dispatch_date_time as timeOfCrime, general_crime_category as crime, w.tmax as maxTemp, w.tmin as minTemp from philly_crime_incidents, philly_weather w where (' + census + ') AND to_timestamp(' + startTime + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+endTime+') AND ('+ crimeQuery +') AND ('+ con +') AND ('+ dorn +') AND w.begintime = weather_ref'\
 }
