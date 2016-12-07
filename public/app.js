@@ -3,6 +3,7 @@ $(document).ready(function() {
     $("#city_filters").toggle();
     $("#city_summary").toggle();
 
+
     $('#toggleDivisions').val($(this).is(':checked'));
 
     $("#cityLevel").click(function() {
@@ -373,28 +374,46 @@ $(document).ready(function() {
     });
 
     $("#micro-go").click(function(){
-        var string = "";
+        var s1 = "";
+        var s2 = "";
+        var s3 = "";
         $('input:checkbox.ct').each(function(){
             var sThisVal = (this.checked ? "1" : "0");
-            string+=sThisVal;
+            s1+=sThisVal;
+            s1+="-";
         })
-        string+=",";
+        if(!s1.includes("1")){
+            s1 = "1-1-1-1-1"
+        }
+        
         $('input:checkbox.w').each(function(){
             var sThisVal = (this.checked ? "1" : "0");
-            string+=sThisVal;
+            s2+=sThisVal;
+            s2+="-";
         })
-        string+=",";
+        if(!s2.includes("1")){
+            s2 = "1-1-1-1"
+        }
+        
         $('input:checkbox.t').each(function(){
             var sThisVal = (this.checked ? "1" : "0");
-            string+=sThisVal;
+            s3+=sThisVal;
+            s3+="-";
         })
-        console.log(string);
-        $.get('/api/filter', {
-             medianAge:age,
-             unemployment:ue,
-             medianIncome:inc,
-             vacancyRate:vac,
-             povertyRate:pov
+        if(!s3.includes("1")){
+            s3 = "1-1"
+        }
+        console.log(s1,s2,s3);
+        var max = $("#date").dateRangeSlider("max");
+        var min = $('#date').dateRangeSlider('min');
+
+        $.get('/api/tractfilters', {
+             startTime: parseInt(min.getTime() / 1000),
+             endTime: parseInt(max.getTime() / 1000),
+             GID:"1-2-3-4",
+             crimeTypes:s1,
+             crimeWeather:s2,
+             crimeTime:s3
         }).done(function(data){
             console.log(data);
         });

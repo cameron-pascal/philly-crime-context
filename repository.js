@@ -265,7 +265,7 @@ function getTractFilters(req, res, next) {
 
 //list of GIDS
   var gidList = req.query.GID;
-  var gidArray = gidList.split(',')
+  var gidArray = gidList.split('-')
   var census;
   var censusLen = gidArray.length;
   if (gidArray.length >= 5){
@@ -284,7 +284,7 @@ function getTractFilters(req, res, next) {
 
   //the crimetype
   var crimeType = req.query.crimeTypes;
-  var crimeArray = crimeType.split(',')
+  var crimeArray = crimeType.split('-')
 
   var nonviolent = "(crime_type = 1)";
   var homicide = "(crime_type = 2)";
@@ -362,7 +362,7 @@ function getTractFilters(req, res, next) {
   var filternum = 0;
   var con;
 
-  var condarray = conditions.split(',')
+  var condarray = conditions.split('-')
   var indecies = [4];
 
   if(condarray[0] == 1){
@@ -430,7 +430,7 @@ function getTractFilters(req, res, next) {
   
 
   var dayOrNight = req.query.crimeTime;
-  var dornArr = dayOrNight.split(',')
+  var dornArr = dayOrNight.split('-')
   //crimeTime
   //Day =1 06 - 20
   //Night =2 20 - 06
