@@ -67,9 +67,6 @@ $(document).ready(function() {
     $("#map").igMap({
         width: "700px",
         height: "500px",
-        /*useTiledZooming: true,*/
-        // defaultInteraction: "none",
-        // zoomable: "0.5",
         windowRect: {
             height: 0.001009303876507106,
             left: 0.3504394459623032,
@@ -90,14 +87,6 @@ $(document).ready(function() {
             outlineThickness: 1,
             showTooltip: false,
             tooltipTemplate: "geoShapeTooltip"
-            // shapeStyleSelector: {
-            //     selectStyle: function (s, o) {
-            //         return {
-            //             fill: "blue",
-            //             stroke: "gray"
-            //         };
-            //     }
-            // }
         }]
     });
 
@@ -384,11 +373,22 @@ $(document).ready(function() {
     });
 
     $("#micro-go").click(function(){
-        var age = $("input[name=age]:checked").val(); 
-        var ue = $("input[name=ue]:checked").val(); 
-        var inc = $("input[name=inc]:checked").val(); 
-        var vac = $("input[name=vac]:checked").val(); 
-        var pov = $("input[name=pov]:checked").val(); 
+        var string = "";
+        $('input:checkbox.ct').each(function(){
+            var sThisVal = (this.checked ? "1" : "0");
+            string+=sThisVal;
+        })
+        string+=",";
+        $('input:checkbox.w').each(function(){
+            var sThisVal = (this.checked ? "1" : "0");
+            string+=sThisVal;
+        })
+        string+=",";
+        $('input:checkbox.t').each(function(){
+            var sThisVal = (this.checked ? "1" : "0");
+            string+=sThisVal;
+        })
+        console.log(string);
         $.get('/api/filter', {
              medianAge:age,
              unemployment:ue,
@@ -436,6 +436,7 @@ function getAgeVal() {
     console.log(x);
 }
 
-})
+});
+
 
 
