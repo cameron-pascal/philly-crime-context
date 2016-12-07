@@ -4,7 +4,7 @@
   "private": true,
   "description": "A dashboard for exploring crime in Philadelphia",
   "scripts": {
-    "start": "./bin/www.js"
+    "start": "set NODE_ENV=production && node ./bin/www.js"
   },
   "repository": {
     "type": "git",
