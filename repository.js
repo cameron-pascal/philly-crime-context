@@ -7,7 +7,7 @@ const options = {
 const pgp = require('pg-promise')(options);
 const url = require('url');
 
-const params = url.parse(process.env.DATABASE_URL || 'postgres://localhost:5432/postgres');
+const params = url.parse(process.env.DATABASE_URL);
 const config = {
   host: params.hostname,
   port: params.port,
