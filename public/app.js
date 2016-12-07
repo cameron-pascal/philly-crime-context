@@ -8,6 +8,26 @@ $(document).ready(function() {
         $("#crime-filters:visible").toggle("medium");
         $("#macro-filters").toggle("medium");
     });
+        
+    $( document ).ajaxStart(function() {
+        $.blockUI({
+            message:$('#domMessage'),
+            css: { 
+                border: 'none', 
+                padding: '15px', 
+                backgroundColor: '#000', 
+                '-webkit-border-radius': '10px', 
+                '-moz-border-radius': '10px', 
+                opacity: .5, 
+                color: '#fff',
+                'font-size':'20px'
+            } 
+        })
+    });
+    
+    $( document ).ajaxStop(function() {
+        $.unblockUI();
+    });
 
     $("#streetLevel").click(function() {
         $("#macro-filters:visible").toggle("medium");
@@ -39,6 +59,8 @@ $(document).ready(function() {
         }
     });
 
+
+    //Infragistics Map Control Initialization
     $("#map").igMap({
         width: "700px",
         height: "500px",
@@ -58,66 +80,165 @@ $(document).ready(function() {
         },
         series: [{
             type: "geographicShape",
-            name: "OBJECTID",
+            name: "politicalWards",
             shapeDataSource: "./assets/Political_Wards.shp",
-            databaseSource: "./assets/Political_Wards.dbf",
+            databaseSource: "./assets/wards.dbf",
             opacity: 0.8,
             outlineThickness: 1,
-            showTooltip: true,
+            showTooltip: false,
             tooltipTemplate: "geoShapeTooltip"
+            // shapeStyleSelector: {
+            //     selectStyle: function (s, o) {
+            //         return {
+            //             fill: "blue",
+            //             stroke: "gray"
+            //         };
+            //     }
+            // }
         }]
     });
 
     function ColorPickerByIndex(crimes) {
 
-        function interpolateColor(min, max, val) {
-            var normalizedVal = 0;
-            
-            if ((max - min) > 0) {
-                var normalizedVal = (val - min) / (max - min);
+        function interpolateColor(val) {
+            var h = 100;
+
+            if(val<39){
+                 h=100;
+            }
+            else if(val<39){
+                 h=90;
+            }
+            else if(val<78){
+                 h=75;
+            }
+            else if(val<117){
+                 h=70;
+            }
+            else if(val<156){
+                 h=60;
+            }
+            else if(val<195){
+                 h=55;
+            }
+            else if(val<234){
+                 h=50;
+            }
+            else if(val<273){
+                 h=40;
+            }
+            else if(val<312){
+                 h=10;
+            }
+            else if(val<351){
+                 h=5;
+            }
+            else if(val<390){
+                 h=0;
             }
 
-            var h = normalizedVal * 0.4;
-            var s = 0.9;
-            var v = 0.9;
+            var s = 82;
+            var v = 92;
 
             var color = hsvToRgb(h, s, v);
 
-            return rgbToHex(color.r, color.g, color.b);
+            return rgbToHex(color[0], color[1], color[2]);
+        }
+
+                /**
+        * HSV to RGB color conversion
+        *
+        * H runs from 0 to 360 degrees
+        * S and V run from 0 to 100
+        *
+        * Ported from the excellent java algorithm by Eugene Vishnevsky at:
+        * http://www.cs.rit.edu/~ncs/color/t_convert.html
+        */
+        function hsvToRgb(h, s, v) {
+            var r, g, b;
+            var i;
+            var f, p, q, t;
+            
+            // Make sure our arguments stay in-range
+            h = Math.max(0, Math.min(360, h));
+            s = Math.max(0, Math.min(100, s));
+            v = Math.max(0, Math.min(100, v));
+            
+            // We accept saturation and value arguments from 0 to 100 because that's
+            // how Photoshop represents those values. Internally, however, the
+            // saturation and value are calculated from a range of 0 to 1. We make
+            // That conversion here.
+            s /= 100;
+            v /= 100;
+            
+            if(s == 0) {
+                // Achromatic (grey)
+                r = g = b = v;
+                return [
+                    Math.round(r * 255), 
+                    Math.round(g * 255), 
+                    Math.round(b * 255)
+                ];
+            }
+            
+            h /= 60; // sector 0 to 5
+            i = Math.floor(h);
+            f = h - i; // factorial part of h
+            p = v * (1 - s);
+            q = v * (1 - s * f);
+            t = v * (1 - s * (1 - f));
+            
+            switch(i) {
+                case 0:
+                    r = v;
+                    g = t;
+                    b = p;
+                    break;
+            
+                case 1:
+                    r = q;
+                    g = v;
+                    b = p;
+                    break;
+            
+                case 2:
+                    r = p;
+                    g = v;
+                    b = t;
+                    break;
+            
+                case 3:
+                    r = p;
+                    g = q;
+                    b = v;
+                    break;
+            
+                case 4:
+                    r = t;
+                    g = p;
+                    b = v;
+                    break;
+            
+                default: // case 5:
+                    r = v;
+                    g = p;
+                    b = q;
+            }
+            
+            return [
+                Math.round(r * 255), 
+                Math.round(g * 255), 
+                Math.round(b * 255)
+            ];
+        }
+        
+        function rgbToHex(r, g, b) {
+            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
         }
 
         function componentToHex(c) {
             var hex = c.toString(16);
             return hex.length == 1 ? "0" + hex : hex;
-        }
-
-        function rgbToHex(r, g, b) {
-            return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
-        }
-
-        function hsvToRgb(h, s, v) {
-            var r, g, b, i, f, p, q, t;
-            if (arguments.length === 1) {
-                s = h.s, v = h.v, h = h.h;
-            }
-            i = Math.floor(h * 6);
-            f = h * 6 - i;
-            p = v * (1 - s);
-            q = v * (1 - f * s);
-            t = v * (1 - (1 - f) * s);
-            switch (i % 6) {
-                case 0: r = v, g = t, b = p; break;
-                case 1: r = q, g = v, b = p; break;
-                case 2: r = p, g = v, b = t; break;
-                case 3: r = p, g = q, b = v; break;
-                case 4: r = t, g = p, b = v; break;
-                case 5: r = v, g = p, b = q; break;
-            }
-            return {
-                r: Math.round(r * 255),
-                g: Math.round(g * 255),
-                b: Math.round(b * 255)
-            };
         }
 
         function getBrushDict(crimes) {
@@ -139,11 +260,13 @@ $(document).ready(function() {
             });
 
             var dict = {};
+            console.log(counts);
+            keysSorted = Object.keys(counts).sort(function(a,b){return counts[a]-counts[b]});
+            console.log(keysSorted);
 
-            crimes.forEach(function(crime) {
-                var count = counts[crime.tractid];
-                var brush = interpolateColor(min, max, count);
-                dict[crime.tractid] = brush;
+            Object.keys(keysSorted).forEach(function(key) {
+                    var brush = interpolateColor(key);
+                    dict[keysSorted[key]] = brush;
             });
 
             return dict;
@@ -169,13 +292,24 @@ $(document).ready(function() {
     }
 
     $('#commit-range').click(function() {
-        var bounds = $('#date').dateRangeSlider('option', 'bounds');
-        $.get('/crimes.json', {
-            start: parseInt(bounds.min.getTime() / 1000),
-            end: parseInt(bounds.max.getTime() / 1000)
+
+        if ($("#toggleDivisions").is(":checked")) {
+            // document.getElementsByClassName('switch-button-button').trigger("click");
+            // console.log(x);
+            $("#toggleDivisions").switchButton("toggle");
+        }
+
+        var max = $("#date").dateRangeSlider("max");
+        console.log(max.toString());
+        var min = $('#date').dateRangeSlider('min');
+        console.log(min.toString());
+        $.get('/api/crimes', {
+            start: parseInt(min.getTime() / 1000),
+            end: parseInt(max.getTime() / 1000)
         }).done(function(data) {
+            console.log(data);
             var series = $("#map").igMap('option', 'series');
-            var colorPicker = new ColorPickerByIndex(data);
+            var colorPicker = new ColorPickerByIndex(data.points.rows);
             var styleSelector = createStyleSelector(colorPicker);
             $("#map").igMap('option', 'series', [{
                 name:"OBJECTID",
@@ -198,12 +332,11 @@ $(document).ready(function() {
             $("#map").igMap("option", "series", [{
                 type: "geographicShape",
                 name: "OBJECTID",
-                shapeDataSource: "./assets/Political_Wards.shp",
-                databaseSource: "./assets/Political_Wards.dbf",
+                shapeDataSource: "./assets/wards.shp",
+                databaseSource: "./assets/wards.dbf",
                 opacity: 0.8,
                 outlineThickness: 1,
-                showTooltip: true,
-                tooltipTemplate: "geoShapeTooltip"
+                showTooltip: false
             }]);
             $("#city_filters:visible").toggle("medium");
             $("#political_filters").toggle("medium");
@@ -238,6 +371,6 @@ $(document).ready(function() {
 
 
 
-function cityToStreet() {
-    // The function returns the product of p1 and p2
+function getAgeVal() {
+    $('input[name=age]:checked', '#myForm').val()
 }

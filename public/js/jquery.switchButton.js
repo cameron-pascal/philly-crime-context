@@ -13,10 +13,8 @@
  * copies of the Software, and to permit persons to whom the
  * Software is furnished to do so, subject to the following
  * conditions:
-
  * The above copyright notice and this permission notice shall be
  * included in all copies or substantial portions of the Software.
-
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
  * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
  * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
@@ -25,7 +23,6 @@
  * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
-
  * }}}
  */
 
@@ -105,7 +102,7 @@
             // This will animate all checked switches to the ON position when
             // loading... this is intentional!
             this.options.checked = !this.options.checked;
-            this._toggleSwitch(true);
+            this._toggleSwitch();
         },
 
         _refresh: function() {
@@ -196,13 +193,13 @@
             this.button_bg.click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                self._toggleSwitch(false);
+                self._toggleSwitch();
                 return false;
             });
             this.button.click(function(e) {
                 e.preventDefault();
                 e.stopPropagation();
-                self._toggleSwitch(false);
+                self._toggleSwitch();
                 return false;
             });
 
@@ -212,7 +209,7 @@
                     return false;
                 }
 
-                self._toggleSwitch(false);
+                self._toggleSwitch();
                 return false;
             });
 
@@ -221,7 +218,7 @@
                     return false;
                 }
 
-                self._toggleSwitch(false);
+                self._toggleSwitch();
                 return false;
             });
 
@@ -243,20 +240,20 @@
             }
 
             this.options.checked = !value;
-            this._toggleSwitch(false);
+            this._toggleSwitch();
         },
 
-        _toggleSwitch: function(isInitializing) {
-        	// Don't toggle the switch if it is set to readonly or disabled, unless it is initializing and animating itself
-        	if( !isInitializing && (this.element.attr('readonly') == 'readonly' || this.element.prop('disabled')) )
-	        		return;
-
+        _toggleSwitch: function(skipChangeEvent) {
             this.options.checked = !this.options.checked;
             var newLeft = "";
             if (this.options.checked) {
                 // Update the underlying checkbox state
                 this.element.prop("checked", true);
-                this.element.change();
+
+                // Trigger change event unless toggle is silent
+                if (!skipChangeEvent == true) {
+                  this.element.change();
+                }
 
                 var dLeft = this.options.width - this.options.button_width;
                 newLeft = "+=" + dLeft;
@@ -279,7 +276,11 @@
             else {
                 // Update the underlying checkbox state
                 this.element.prop("checked", false);
-                this.element.change();
+
+                // Trigger change event unless toggle is silent
+                if (!skipChangeEvent == true) {
+                  this.element.change();
+                }
                 newLeft = "-1px";
 
                 // Update labels states
@@ -299,8 +300,18 @@
             }
             // Animate the switch
             this.button.animate({ left: newLeft }, 250, "easeInOutCubic");
+        },
+        silentToggle: function() {
+          this._toggleSwitch(true);
+        },
+        toggle: function() {
+          this._toggleSwitch(false);
+        },
+        redraw: function() {
+          if (!this.element.prop("checked") == this.button_bg.hasClass("checked")) {
+            this._toggleSwitch(true);
+          }
         }
-
     });
 
 })(jQuery);
