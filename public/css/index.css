@@ -98,6 +98,14 @@ h1 {
     margin-right: 50px;
 }
 
+.background .city_summary{
+    padding: 10px 0 50px;
+    margin-bottom: 10px;
+    overflow: hidden;
+    align-content: center;
+    border-bottom: 1px solid rgba(0,0,0, .15);
+}
+
 .background .viewselector {
   padding-top: 10px;
   display: flex;

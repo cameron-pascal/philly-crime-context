@@ -309,7 +309,7 @@ $(document).ready(function() {
         }).done(function(data) {
             console.log(data);
             var series = $("#map").igMap('option', 'series');
-            var colorPicker = new ColorPickerByIndex(data);
+            var colorPicker = new ColorPickerByIndex(data.points.rows);
             var styleSelector = createStyleSelector(colorPicker);
             $("#map").igMap('option', 'series', [{
                 name:"OBJECTID",
@@ -371,6 +371,6 @@ $(document).ready(function() {
 
 
 
-function cityToStreet() {
-    // The function returns the product of p1 and p2
+function getAgeVal() {
+    $('input[name=age]:checked', '#myForm').val()
 }
