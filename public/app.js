@@ -265,7 +265,6 @@ $(document).ready(function() {
             console.log(keysSorted);
 
             Object.keys(keysSorted).forEach(function(key) {
-                    console.log(key, keysSorted[key]);
                     var brush = interpolateColor(key);
                     dict[keysSorted[key]] = brush;
             });
