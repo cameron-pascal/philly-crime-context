@@ -21,4 +21,6 @@ router.get('/api/filter', repository.getFilterGIDs);
 
 router.get('/api/political', repository.getWardInfo);
 
+router.get('/api/getalldata', repository.getAllCensusDataWithFilters);
+
 module.exports = router;
