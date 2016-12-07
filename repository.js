@@ -17,7 +17,7 @@ const config = {
 if (process.env.NODE_ENV == 'production') {
   const auth = params.auth.split(':');
   config.user = auth[0];
-  config.auth = auth[1];
+  config.password = auth[1];
   config.ssl = true;
   config.max = 20;
   config.min = 4;
