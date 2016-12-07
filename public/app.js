@@ -2,15 +2,35 @@ $(document).ready(function() {
     $("#crime-filters").toggle();
     $("#city_filters").toggle();
     $("#city_summary").toggle();
-
-
+    $("#excelDataTable").hide();
     $('#toggleDivisions').val($(this).is(':checked'));
 
     $("#cityLevel").click(function() {
         $("#crime-filters:visible").toggle("medium");
         $("#macro-filters").toggle("medium");
+        $("#map").show();
+
+
     });
     
+    $("#streetLevel").click(function() {
+        $("#macro-filters:visible").toggle("medium");
+        $("#map:visible").toggle();
+        $("#crime-filters").toggle("medium");
+    });
+
+    
+    // var mymap = L.map('mapid').setView([0.001009303876507106, -0.09], 13);
+    
+    // L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGVhbmtlaW5hbiIsImEiOiJjaXdlcHg4azkwOW10Mnpsazdpd3EyNGxjIn0.x_w9VUhJiUmtCbANfWxf-w', {
+    //         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    //         maxZoom: 18,
+    //         accessToken: 'pk.eyJ1IjoiZGVhbmtlaW5hbiIsImEiOiJjaXdlcHg4azkwOW10Mnpsazdpd3EyNGxjIn0.x_w9VUhJiUmtCbANfWxf-w'
+    // }).addTo(mymap);
+
+    // var geojsonLayer = new L.GeoJSON.AJAX("./assets/Census_Tracts_2010.geojson");       
+    // geojsonLayer.addTo(mymap);
+
 
 
     $( document ).ajaxStart(function() {
@@ -33,10 +53,7 @@ $(document).ready(function() {
         $.unblockUI();
     });
 
-    $("#streetLevel").click(function() {
-        $("#macro-filters:visible").toggle("medium");
-        $("#crime-filters").toggle("medium");
-    });
+
 
     $("#date").dateRangeSlider({
         bounds: {
@@ -407,7 +424,7 @@ $(document).ready(function() {
         var max = $("#date").dateRangeSlider("max");
         var min = $('#date').dateRangeSlider('min');
 
-        $.get('/api/tractfilters', {
+        $.get('/api/getalldata', {
              startTime: parseInt(min.getTime() / 1000),
              endTime: parseInt(max.getTime() / 1000),
              GID:"1-2-3-4",
@@ -415,7 +432,29 @@ $(document).ready(function() {
              crimeWeather:s2,
              crimeTime:s3
         }).done(function(data){
+            if ($.fn.DataTable.isDataTable( '#excelDataTable' ) ) {
+                    var table = $('#excelDataTable').DataTable();
+                    table.destroy();
+            }
+
+            $('#excelDataTable').show();
+            $('#excelDataTable').DataTable( {
+            data: data,
+            columns: [
+                { data: 'dcnum' },
+                { data: 'censusref' },
+                { data: 'timeofcrime' },
+                { data: 'crime' },
+                { data: 'maxtemp' },
+                { data: 'mintemp' }
+            ],
+            "order": [[ 1, "desc" ]],
+                paging: true,
+                destroy: true
+            } );
+        
             console.log(data);
+            // buildHtmlTable(data);
         });
     });
 
@@ -454,6 +493,44 @@ function getAgeVal() {
     var x = $("input[name=radio-choice-1]:checked").val(); 
     console.log(x);
 }
+
+function buildHtmlTable(myList) {
+     var columns = addAllColumnHeaders(myList);
+ 
+     for (var i = 0 ; i < myList.length ; i++) {
+         var row$ = $('<tr/>');
+         for (var colIndex = 0 ; colIndex < columns.length ; colIndex++) {
+             var cellValue = myList[i][columns[colIndex]];
+ 
+             if (cellValue == null) { cellValue = ""; }
+ 
+             row$.append($('<td/>').html(cellValue));
+         }
+         $("#excelDataTable").append(row$);
+     }
+ }
+ 
+ // Adds a header row to the table and returns the set of columns.
+ // Need to do union of keys from all records as some records may not contain
+ // all records
+ function addAllColumnHeaders(myList)
+ {
+     var columnSet = [];
+     var headerTr$ = $('<tr/>');
+ 
+     for (var i = 0 ; i < myList.length ; i++) {
+         var rowHash = myList[i];
+         for (var key in rowHash) {
+             if ($.inArray(key, columnSet) == -1){
+                 columnSet.push(key);
+                 headerTr$.append($('<th/>').html(key));
+             }
+         }
+     }
+     $("#excelDataTable").append(headerTr$);
+ 
+     return columnSet;
+ }
 
 });
 
