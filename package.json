@@ -1,14 +1,14 @@
 {
   "name": "philly-crime",
   "version": "0.0.1",
+  "private": true,
   "description": "A dashboard for exploring crime in Philadelphia",
-  "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "set NODE_ENV=production && node ./bin/www.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/camtotheron/philly-crime.git"
+    "url": "git+https://github.com/camtotheron/philly-crime-context.git"
   },
   "author": "Cameron Pascal <cpascal22@gmail.com>",
   "contributors": [
@@ -23,12 +23,18 @@
   ],
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/camtotheron/philly-crime/issues"
+    "url": "https://github.com/camtotheron/philly-crime-context/issues"
   },
-  "homepage": "https://github.com/camtotheron/philly-crime#readme",
+  "homepage": "https://github.com/camtotheron/philly-crime-context#readme",
   "devDependencies": {},
   "dependencies": {
-    "express": "^4.14.0"
+    "bluebird": "^3.3.4",
+    "compression": "^1.6.2",
+    "express": "~4.13.1",
+    "morgan": "~1.6.1",
+    "pg-pool": "^1.6.0",
+    "pg-promise": "^3.2.3",
+    "serve-favicon": "~2.3.0"
   },
   "engines": {
     "node": "6.9.1"
