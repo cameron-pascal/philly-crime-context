@@ -19,7 +19,11 @@
     <script src="./js/jQRangeSlider-5.7.2/jQDateRangeSlider-min.js"></script>
     <script src="./js/jquery.switchButton.js"></script>
     <script src="./js/jquery.blockUI.js"></script>
+    <script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
 
+    
+
+ <link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />
     <link rel="stylesheet" href="./css/index.css"></link>
     <link rel="stylesheet" href="./css/jquery.switchButton.css"></link>
     <link rel="stylesheet" href="./js/jQRangeSlider-5.7.2/css/iThing-min.css"></link>
@@ -243,42 +247,42 @@
                         <fieldset>
                             <h4>Crime Type</h4>
                             <div class="radio">
-                                <input type="checkbox" value=".crime-homicide" />
+                                <input type="checkbox" class="ct" value=".crime-homicide" />
                                 <label>Homicide</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" value=".crime-sex" />
+                                <input type="checkbox" class="ct" value=".crime-sex" />
                                 <label>Sex Crime</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" value=".crime-violent" />
+                                <input type="checkbox" class="ct" value=".crime-violent" />
                                 <label>Violent Crime</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" value=".crime-other" />
+                                <input type="checkbox" class="ct" value=".crime-other" />
                                 <label>Non-Violent/Other Crime</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" value=".crime-property" />
+                                <input type="checkbox" class="ct" value=".crime-property" />
                                 <label>Property Crime</label>
                             </div>
                         </fieldset>
                         <fieldset>
                             <h4>Conditions</h4>
                             <div class="radio">
-                                <input type="checkbox" value=".weather-clear" />
+                                <input type="checkbox" class="w" value=".weather-clear" />
                                 <label>Clear Weather</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" value=".weather-cloudy" />
+                                <input type="checkbox" class="w" value=".weather-cloudy" />
                                 <label>Cloudy</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" value=".weather-rain" />
+                                <input type="checkbox" class="w" value=".weather-rain" />
                                 <label>Rain</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" value=".weather-snow" />
+                                <input type="checkbox" class="w" value=".weather-snow" />
                                 <label>Snow</label>
                             </div>
                         </fieldset>
@@ -286,19 +290,17 @@
                         <fieldset>
                             <h4>Time</h4>
                             <div class="radio">
-                                <input type="checkbox" value=".time-day" />
+                                <input type="checkbox" class="t" value=".time-day" />
                                 <label>Day</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" value=".time-night" />
+                                <input type="checkbox" class="t" value=".time-night" />
                                 <label>Night</label>
                             </div>
                         </fieldset>
-                        <div id="micro-button-bar">
+                    </form>
                         <button id="micro-clear">Clear Filters</button>
                         <button id="micro-go">Make Query</button>
-                        </div>
-                    </form>
                 </div>
                 
 
@@ -322,6 +324,9 @@
                     <div id="map" />
                     <!--Map-->
                 </div>
+
+                <br>
+                <div id="mapid"></div>
     </section>
 </body>
 
