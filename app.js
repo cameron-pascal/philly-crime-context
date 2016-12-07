@@ -20,7 +20,7 @@ app.use('/', routes);
 
 // development error handler
 // will print stacktrace
-if (app.get('env') === 'development') {
+if (app.get('env') !== 'production') {
   app.use(function(err, req, res, next) {
     res.status( err.code || 500 )
     .json({
