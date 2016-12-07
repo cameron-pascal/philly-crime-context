@@ -91,7 +91,10 @@ $(document).ready(function() {
         }]
     });
 
-    function ColorPickerByIndex(crimes) {
+    function ColorPickerByIndex(crimes, seriesName, mapSelector) {
+
+        var _seriesName = seriesName;
+        var _mapSelector = mapSelector;
 
         function interpolateColor(val) {
             var h = 100;
@@ -266,9 +269,63 @@ $(document).ready(function() {
         }
 
         var brushes = getBrushDict(crimes);
+        
+        function initVisibleTracts() {
+            var noDataTracts = [ 
+                { gid: 127 },
+                { gid: 299 },
+                { gid: 324 },
+                { gid: 253 },
+                { gid: 77 },
+                { gid: 134 },
+                { gid: 304 },
+                { gid: 188 },
+                { gid: 368 },
+                { gid: 306 },
+                { gid: 46 },
+                { gid: 181 },
+                { gid: 14 },
+                { gid: 344 },
+                { gid: 331 } 
+            ];
+            
+            var visibleDict = {};
+            noDataTracts.forEach(function(item) {
+                visibleDict[item.gid] = true;
+            });
+
+            return visibleDict;
+        }
+
+        var visibleTracts = initVisibleTracts();
+        var shouldShowAll = true;
+
+        this.hideAllTracts = function() {
+            visibleTracts = initVisibleTracts();
+            shouldShowAll = false;
+            $(_mapSelector).igMap("renderSeries", _seriesName, true);
+        }
+
+        this.showGivenTractsOnly = function(tractIds) {
+            visibleTracts = initVisibleTracts();
+            shouldShowAll = false;
+            tractIds.forEach(function(tractId) {
+                visibleTracts[tractId] = true;
+            });
+            $(_mapSelector).igMap("renderSeries", _seriesName, true);
+        }
+
+        this.showAllTracts = function() {
+            shouldShowAll = true;
+            $(_mapSelector).igMap("renderSeries", _seriesName, true);
+        }
 
         this.getColorByIndex = function (val) {
-            return brushes[val];
+            if (shouldShowAll === true || visibleTracts[val] === true) {
+                    return brushes[val];
+            }
+
+            return "#ffffff";;
         }
     }
 
@@ -284,6 +341,8 @@ $(document).ready(function() {
         }
     }
 
+    var censusColorPickerByIndex;
+
     $('#commit-range').click(function() {
         if ($("#toggleDivisions").is(":checked")) {
             $("#toggleDivisions").switchButton("toggle");
@@ -297,10 +356,8 @@ $(document).ready(function() {
 
             var cData = data.totalCrimes.rows[0];
             showSummary(parseInt(cData.nonviolent),parseInt(cData.violent),parseInt(cData.property),parseInt(cData.sexualcrimes),parseInt(cData.homicide));
-            
-            var series = $("#map").igMap('option', 'series');
-            var colorPicker = new ColorPickerByIndex(data.points.rows);
-            var styleSelector = createStyleSelector(colorPicker);
+            censusColorPickerByIndex = new ColorPickerByIndex(data.points.rows, 'OBJECTID', '#map');
+            var styleSelector = createStyleSelector(censusColorPickerByIndex);
             $("#map").igMap('option', 'series', [{
                 name:"OBJECTID",
                 shapeStyleSelector: styleSelector
@@ -356,6 +413,18 @@ $(document).ready(function() {
         });
     });
 
+    $("#macro-reset").click(function() {
+        if(censusColorPickerByIndex) {
+            censusColorPickerByIndex.showAllTracts();
+        }
+
+        $("input[name=age][value=0]").prop('checked', true); 
+        $("input[name=ue][value=0]").prop('checked', true); 
+        $("input[name=inc][value=0]").prop('checked', true);
+        $("input[name=vac][value=0]").prop('checked', true);
+        $("input[name=pov][value=0]").prop('checked', true);
+    })
+
     $("#macro-go").click(function(){
         var age = $("input[name=age]:checked").val(); 
         var ue = $("input[name=ue]:checked").val(); 
@@ -369,7 +438,14 @@ $(document).ready(function() {
              vacancyRate:vac,
              povertyRate:pov
         }).done(function(data){
-            console.log(data);
+            console.log(data.length);
+            if(censusColorPickerByIndex) {
+                var tracts = [];
+                data.forEach(function(item) {
+                    tracts.push(item.gid);
+                });
+                censusColorPickerByIndex.showGivenTractsOnly(tracts);
+            }
         });
     });
 

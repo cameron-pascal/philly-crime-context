@@ -7,19 +7,21 @@ const options = {
 const pgp = require('pg-promise')(options);
 const url = require('url');
 
-const params = url.parse(process.env.DATABASE_URL || 'postgres://localhost:5432/postgres');
+const params = url.parse(process.env.DATABASE_URL);
 const config = {
   host: params.hostname,
   port: params.port,
   database: params.pathname.split('/')[1]
 };
 
-if (process.env.NODE_ENV == 'production') {
+if (process.env.NODE_ENV === 'production' || process.env.USE_PROD_DB === 'true') {
   const auth = params.auth.split(':');
-  config.auth = auth[1];
+  config.user = auth[0];
+  config.password = auth[1];
   config.ssl = true;
   config.max = 20;
   config.min = 4;
+  config.idleTimeoutMillis = 1000;
 }
 
 const Pool = require('pg-pool')
@@ -216,7 +218,7 @@ function getCrimesInRange(req, res, next) {
   var endDate = req.query.end;
   var philly = "Philadelphia County";
 
-  pool.query('select st_X(dispatch_location) as x, st_Y(dispatch_location) as y, census_ref as tractId from public.philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
+  pool.query('select st_X(dispatch_location) as x, st_Y(dispatch_location) as y, census_ref as tractId from philly_crime_incidents where to_timestamp(' + startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
     .then(function (data) {
       var firstData = data;
       pool.query('SELECT sum(case when crime_type  = 1 then 1 else 0 end) as nonviolent, sum(case when  crime_type  = 2 then 1 else 0 end) as homicide, sum(case when  crime_type  = 3 then 1 else 0 end) as violent, sum(case when  crime_type  = 4 then 1 else 0 end) as property, sum(case when  crime_type  = 5 then 1 else 0 end) as sexualcrimes from philly_crime_incidents where to_timestamp('+ startDate + ') <= dispatch_date_time AND dispatch_date_time <= to_timestamp('+ endDate + ')')
