@@ -27,7 +27,7 @@
 
 <body>
     <div class="domMessage" id="domMessage" style="display:none;"> 
-        Getting data...please wait.
+        Gathering data...please wait.
     </div> 
 
     <section class="background">
@@ -39,15 +39,30 @@
             </header>
 
             <div class="daterange">
+                <h4>First, please select a time to examine:</h4>
                 <div class="date" id="date" name="date">
                 </div>
                 <div class="map-buttons">
                 <button class="button" id="commit-range">GO!</button>
             </div>
 
-            <div class="city_summary" style="display:none">
-                <h1>Data Summary</h1>
-                <p id="summary"></p>
+            <div class="city_summary" id="city_summary">
+                <h5>At a glance:</h5>
+                <br>
+                <p id="summary-text">
+                    In the city of Philadelphia, between <a id="start-date"></a> and <a id="end-date"></a>:
+                    <br>
+                    <br>
+                    <a id="total-city-crimes"></a> crimes were commited. Of them,
+                    <ul>
+                        <li><a id="sum-hom"></a> were homicides.</li>
+                        <li><a id="sum-sex"></a> were sex crimes.</li>
+                        <li><a id="sum-vio"></a> were other violent crimes.</li>
+                        <li><a id="sum-nvi"></a> were other non-violent crimes.</li>
+                        <li><a id="sum-pro"></a> were property crimes.</li>
+                    </ul>
+                </p>
+                <p id="guidance">Examine the data further below.</p>
             </div>
 
             </div>
@@ -72,12 +87,12 @@
                         </fieldset>
                         <fieldset>
                             <h4>Party</h4>
-                            <div class="checkbox">
-                                <input type="checkbox" value=".election-rep" />
+                            <div class="radio">
+                                <input type="radio" name="party" value=".election-rep" />
                                 <label>Republican Vote</label>
                             </div>
-                            <div class="checkbox">
-                                <input type="checkbox" value=".election-dem" />
+                            <div class="radio">
+                                <input type="radio" name="party" value=".election-dem" />
                                 <label>Democratic Vote</label>
                             </div>
                         </fieldset>
@@ -90,27 +105,27 @@
                         <fieldset>
                             <h4>Median Age</h4>
                             <div class="radio">
-                                <input type="radio" name="age" value=".age-18to24" />
+                                <input type="radio" name="age" value="1" />
                                 <label>18-24</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="age" value=".age-25to34" />
+                                <input type="radio" name="age" value="2" />
                                 <label>25-34</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="age" value=".age-35to44" />
+                                <input type="radio" name="age" value="3"/>
                                 <label>35-44</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="age"value=".age-45to54" />
+                                <input type="radio" name="age" value="4"/>
                                 <label>45-54</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="age" value=".age-55plus" />
+                                <input type="radio" name="age" value="5"/>
                                 <label>55+</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="age" value=".age-All" checked/>
+                                <input type="radio" name="age" value="0" checked/>
                                 <label>All</label>
                             </div>
                         </fieldset>
@@ -118,23 +133,23 @@
                         <fieldset>
                             <h4>Unemployment Rate</h4>
                             <div class="radio">
-                                <input type="radio" name="ue" value=".unemp-0to4.9" />
+                                <input type="radio" name="ue" value="1" />
                                 <label>0%-4.9%</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="ue" value=".unemp-5to14.9" />
+                                <input type="radio" name="ue" value="2" />
                                 <label>5%-14.9%</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="ue" value=".unemp-15to24.9" />
+                                <input type="radio" name="ue" value="3"/>
                                 <label>15%-24.9%</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="ue"  value=".unemp-25plus" />
+                                <input type="radio" name="ue"  value="4"/>
                                 <label>25%+</label>
                             </div>
                                <div class="radio">
-                                <input type="radio" name="ue"  value=".unemp-all"  checked/>
+                                <input type="radio" name="ue"  value="0"  checked/>
                                 <label>All</label>
                             </div>
                         </fieldset>
@@ -142,27 +157,27 @@
                         <fieldset>
                             <h4>Median Household Income</h4>
                             <div class="radio">
-                                <input type="radio" name="inc" value=".income-9Kto20K" />
+                                <input type="radio" name="inc" value="1" />
                                 <label>$9,000-$20,000</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="inc" value=".income-20Kto40K" />
+                                <input type="radio" name="inc" value="2" />
                                 <label>$20,000-$40,000</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="inc" value=".income-40Kto60K" />
+                                <input type="radio" name="inc" value="3" />
                                 <label>$40,000-$60,000</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="inc" value=".income-60Kto75K" />
+                                <input type="radio" name="inc" value="4" />
                                 <label>$60,000-$75,000</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="inc" value=".income-75Kplus" />
+                                <input type="radio" name="inc" value="5" />
                                 <label>$75,000+</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="inc" value=".income-all" checked />
+                                <input type="radio" name="inc" value="0" checked />
                                 <label>All</label>
                             </div>
                         </fieldset>
@@ -170,23 +185,23 @@
                         <fieldset>
                             <h4>Homeowner Vacancy Rate</h4>
                             <div class="radio">
-                                <input type="radio" name="vac" value=".vacancy-0to1.9" />
+                                <input type="radio" name="vac" value="1" />
                                 <label>0%-1.9%</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="vac" value=".vacancy-2to3.9" />
+                                <input type="radio" name="vac" value="2" />
                                 <label>2%-3.9%</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="vac" value=".vacancy-4to9.9" />
+                                <input type="radio" name="vac" value="3" />
                                 <label>4%-9.9%</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="vac" value=".vacancy-10plus" />
+                                <input type="radio" name="vac" value="4" />
                                 <label>10%+</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="vac" value=".vacancy-all" checked />
+                                <input type="radio" name="vac" value="0" checked />
                                 <label>All</label>
                             </div>
                             
@@ -195,30 +210,30 @@
                         <fieldset>
                             <h4>Poverty Rate</h4>
                             <div class="radio">
-                                <input type="radio" name="pov" value=".poverty-0to3.9" />
+                                <input type="radio" name="pov" value="1"/>
                                 <label>0%-3.9%</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="pov" value=".poverty-4to6.9" />
+                                <input type="radio" name="pov" value="2"/>
                                 <label>4%-6.9%</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="pov" value=".poverty-9to13.9" />
+                                <input type="radio" name="pov" value="3"/>
                                 <label>7%-13.9%</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="pov" value=".poverty-14plus" />
+                                <input type="radio" name="pov" value="4"/>
                                 <label>14%+</label>
                             </div>
                             <div class="radio">
-                                <input type="radio" name="pov" value=".poverty-all" checked />
+                                <input type="radio" name="pov" value="0" checked />
                                 <label>All</label>
                             </div>
                         </fieldset>
                     </form>
 
                     <button id="macro-reset">Clear Filters</button>
-                    <button id="macro-go">Make Query</button>
+                    <button id="macro-go">Filter Districts</button>
                 </div>
 
                 <div id=crime-filters>
@@ -227,42 +242,42 @@
 
                         <fieldset>
                             <h4>Crime Type</h4>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".crime-homicide" />
                                 <label>Homicide</label>
                             </div>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".crime-sex" />
                                 <label>Sex Crime</label>
                             </div>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".crime-violent" />
                                 <label>Violent Crime</label>
                             </div>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".crime-other" />
                                 <label>Non-Violent/Other Crime</label>
                             </div>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".crime-property" />
                                 <label>Property Crime</label>
                             </div>
                         </fieldset>
                         <fieldset>
                             <h4>Conditions</h4>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".weather-clear" />
                                 <label>Clear Weather</label>
                             </div>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".weather-cloudy" />
                                 <label>Cloudy</label>
                             </div>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".weather-rain" />
                                 <label>Rain</label>
                             </div>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".weather-snow" />
                                 <label>Snow</label>
                             </div>
@@ -270,18 +285,19 @@
 
                         <fieldset>
                             <h4>Time</h4>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".time-day" />
                                 <label>Day</label>
                             </div>
-                            <div class="checkbox">
+                            <div class="radio">
                                 <input type="checkbox" value=".time-night" />
                                 <label>Night</label>
                             </div>
                         </fieldset>
-
+                        <div id="micro-button-bar">
                         <button id="Reset">Clear Filters</button>
                         <button id="Go">Make Query</button>
+                        </div>
                     </form>
                 </div>
                 
