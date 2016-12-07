@@ -19,4 +19,6 @@ router.get('/api/crimes/:tractId', repository.getTractSummary);
 router.get('/api/filter', repository.getFilterGIDs);
 
 
+router.get('/api/political', repository.getWardInfo);
+
 module.exports = router;

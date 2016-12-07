@@ -489,9 +489,42 @@ function getTractFilters(req, res, next) {
     });
 }
 
+function getWardInfo(req, res, next) {
+  var election = parseInt(req.query.election);
+  var source;
+  if(election == 2016){
+    source = 'election_2016'
+  } else if (election == 2012){
+     source = 'election_2012'
+  } else if (election == 2008){
+    source = 'election_2008'
+  }
+
+  var query = "select ward, sum(votes) as votes, 'republican' as source from election_2016 where party = 'REPUBLICAN' GROUP BY ward UNION ALL SELECT ward, sum(votes) as votes, 'republican' as party from " + source + " where party = 'DEMOCRATIC' GROUP BY ward"
+  
+  pool.query(query)
+    .then(function (data) {
+      res.status(200)
+        .json(data.rows);
+    })
+    .catch(function (err) {
+      return next(err);
+    });
+/*
+  select ward, sum(votes) as votes, 'republican' as source from election_2016
+where party = 'REPUBLICAN'
+GROUP BY ward
+UNION ALL
+  SELECT ward, sum(votes) as votes, 'republican' as source from election_2016
+where party = 'DEMOCRATIC'
+GROUP BY ward
+*/
+}
+
 module.exports = {
   getCrimesInRange: getCrimesInRange,
   getTractSummary: getTractSummary,
   getFilterGIDs: getFilterGIDs,
-  getTractFilters: getTractFilters
+  getTractFilters: getTractFilters,
+  getWardInfo: getWardInfo
 };
