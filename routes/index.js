@@ -7,8 +7,9 @@ router.get('/', function(req, res) {
     res.sendFile('../public/index.html')
 });
 
-router.get('/api/tractfilters', repository.getTractFilters);
 //get crimes in range
+router.get('/api/tractfilters', repository.getTractFilters);
+
 //sends city-wide summary aswell
 router.get('/api/crimes', repository.getCrimesInRange);
 
@@ -20,5 +21,7 @@ router.get('/api/filter', repository.getFilterGIDs);
 
 
 router.get('/api/political', repository.getWardInfo);
+
+router.get('/api/getalldata', repository.getAllCensusDataWithFilters);
 
 module.exports = router;

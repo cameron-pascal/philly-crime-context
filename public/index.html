@@ -19,7 +19,18 @@
     <script src="./js/jQRangeSlider-5.7.2/jQDateRangeSlider-min.js"></script>
     <script src="./js/jquery.switchButton.js"></script>
     <script src="./js/jquery.blockUI.js"></script>
+    <script src="https://cdn.datatables.net/1.10.13/js/jquery.dataTables.min.js"></script>
 
+    <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.13/css/jquery.dataTables.css">
+    <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.13/js/jquery.dataTables.js"></script>
+
+    <!--<script src="https://unpkg.com/leaflet@1.0.2/dist/leaflet.js"></script>
+    <script src="./js/leaflet.ajax.min.js"></script>-->
+
+
+    
+
+ <!--<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.2/dist/leaflet.css" />-->
     <link rel="stylesheet" href="./css/index.css"></link>
     <link rel="stylesheet" href="./css/jquery.switchButton.css"></link>
     <link rel="stylesheet" href="./js/jQRangeSlider-5.7.2/css/iThing-min.css"></link>
@@ -35,7 +46,7 @@
 
             <header>
                 <h1>Philadelphia: Crime and Context</h1>
-                <p>Here is a little bitty description of our cutie tootie project.</p>
+                <p>Dean Keinan, Cameron Pascal, Ariel Shaposhnik</p>
             </header>
 
             <div class="daterange">
@@ -236,31 +247,31 @@
                     <button id="macro-go">Filter Districts</button>
                 </div>
 
-                <div id=crime-filters>
+                <div class="crime-filters" id=crime-filters>
                     <form class="micro_filters" id="micro_filters">
                         <!-- We can add an unlimited number of "filter groups" using the following format: -->
 
                         <fieldset>
                             <h4>Crime Type</h4>
                             <div class="radio">
-                                <input type="checkbox" class="ct" value=".crime-homicide" />
-                                <label>Homicide</label>
+                                <input type="checkbox" class="ct" value=".crime-other" />
+                                <label>Non-Violent/Other Crime</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" class="ct" value=".crime-sex" />
-                                <label>Sex Crime</label>
+                                <input type="checkbox" class="ct" value=".crime-homicide" />
+                                <label>Homicide</label>
                             </div>
                             <div class="radio">
                                 <input type="checkbox" class="ct" value=".crime-violent" />
                                 <label>Violent Crime</label>
                             </div>
                             <div class="radio">
-                                <input type="checkbox" class="ct" value=".crime-other" />
-                                <label>Non-Violent/Other Crime</label>
-                            </div>
-                            <div class="radio">
                                 <input type="checkbox" class="ct" value=".crime-property" />
                                 <label>Property Crime</label>
+                            </div>
+                            <div class="radio">
+                                <input type="checkbox" class="ct" value=".crime-sex" />
+                                <label>Sex Crime</label>
                             </div>
                         </fieldset>
                         <fieldset>
@@ -320,7 +331,25 @@
                     <div id="map" />
                     <!--Map-->
                 </div>
+
+                <br>
+                <!--<div id="mapid"></div>-->
     </section>
+
+    <table id="excelDataTable" class="hover" display:"none">
+    <thead>
+        <tr>
+            <th>Dispatch No.</th>
+            <th>Census Tract</th>
+            <th>Time</th>
+            <th>Crime</th>
+            <th>Temperature - High</th>
+            <th>Temperature - Low</th>
+        </tr>
+    </thead>
+</table>
 </body>
+
+
 
 </html>

@@ -2,14 +2,35 @@ $(document).ready(function() {
     $("#crime-filters").toggle();
     $("#city_filters").toggle();
     $("#city_summary").toggle();
-
+    $("#excelDataTable").hide();
     $('#toggleDivisions').val($(this).is(':checked'));
 
     $("#cityLevel").click(function() {
         $("#crime-filters:visible").toggle("medium");
         $("#macro-filters").toggle("medium");
+        $("#map").show();
+
+
     });
     
+    $("#streetLevel").click(function() {
+        $("#macro-filters:visible").toggle("medium");
+        $("#map:visible").toggle();
+        $("#crime-filters").toggle("medium");
+    });
+
+    
+    // var mymap = L.map('mapid').setView([0.001009303876507106, -0.09], 13);
+    
+    // L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/light-v9/tiles/256/{z}/{x}/{y}?access_token=pk.eyJ1IjoiZGVhbmtlaW5hbiIsImEiOiJjaXdlcHg4azkwOW10Mnpsazdpd3EyNGxjIn0.x_w9VUhJiUmtCbANfWxf-w', {
+    //         attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+    //         maxZoom: 18,
+    //         accessToken: 'pk.eyJ1IjoiZGVhbmtlaW5hbiIsImEiOiJjaXdlcHg4azkwOW10Mnpsazdpd3EyNGxjIn0.x_w9VUhJiUmtCbANfWxf-w'
+    // }).addTo(mymap);
+
+    // var geojsonLayer = new L.GeoJSON.AJAX("./assets/Census_Tracts_2010.geojson");       
+    // geojsonLayer.addTo(mymap);
+
 
 
     $( document ).ajaxStart(function() {
@@ -32,10 +53,7 @@ $(document).ready(function() {
         $.unblockUI();
     });
 
-    $("#streetLevel").click(function() {
-        $("#macro-filters:visible").toggle("medium");
-        $("#crime-filters").toggle("medium");
-    });
+
 
     $("#date").dateRangeSlider({
         bounds: {
@@ -90,7 +108,10 @@ $(document).ready(function() {
         }]
     });
 
-    function ColorPickerByIndex(crimes) {
+    function ColorPickerByIndex(crimes, seriesName, mapSelector) {
+
+        var _seriesName = seriesName;
+        var _mapSelector = mapSelector;
 
         function interpolateColor(val) {
             var h = 100;
@@ -265,9 +286,63 @@ $(document).ready(function() {
         }
 
         var brushes = getBrushDict(crimes);
+        
+        function initVisibleTracts() {
+            var noDataTracts = [ 
+                { gid: 127 },
+                { gid: 299 },
+                { gid: 324 },
+                { gid: 253 },
+                { gid: 77 },
+                { gid: 134 },
+                { gid: 304 },
+                { gid: 188 },
+                { gid: 368 },
+                { gid: 306 },
+                { gid: 46 },
+                { gid: 181 },
+                { gid: 14 },
+                { gid: 344 },
+                { gid: 331 } 
+            ];
+            
+            var visibleDict = {};
+            noDataTracts.forEach(function(item) {
+                visibleDict[item.gid] = true;
+            });
+
+            return visibleDict;
+        }
+
+        var visibleTracts = initVisibleTracts();
+        var shouldShowAll = true;
+
+        this.hideAllTracts = function() {
+            visibleTracts = initVisibleTracts();
+            shouldShowAll = false;
+            $(_mapSelector).igMap("renderSeries", _seriesName, true);
+        }
+
+        this.showGivenTractsOnly = function(tractIds) {
+            visibleTracts = initVisibleTracts();
+            shouldShowAll = false;
+            tractIds.forEach(function(tractId) {
+                visibleTracts[tractId] = true;
+            });
+            $(_mapSelector).igMap("renderSeries", _seriesName, true);
+        }
+
+        this.showAllTracts = function() {
+            shouldShowAll = true;
+            $(_mapSelector).igMap("renderSeries", _seriesName, true);
+        }
 
         this.getColorByIndex = function (val) {
-            return brushes[val];
+            if (shouldShowAll === true || visibleTracts[val] === true) {
+                    return brushes[val];
+            }
+
+            return "#ffffff";;
         }
     }
 
@@ -283,6 +358,8 @@ $(document).ready(function() {
         }
     }
 
+    var censusColorPickerByIndex;
+
     $('#commit-range').click(function() {
         if ($("#toggleDivisions").is(":checked")) {
             $("#toggleDivisions").switchButton("toggle");
@@ -296,10 +373,8 @@ $(document).ready(function() {
 
             var cData = data.totalCrimes.rows[0];
             showSummary(parseInt(cData.nonviolent),parseInt(cData.violent),parseInt(cData.property),parseInt(cData.sexualcrimes),parseInt(cData.homicide));
-            
-            var series = $("#map").igMap('option', 'series');
-            var colorPicker = new ColorPickerByIndex(data.points.rows);
-            var styleSelector = createStyleSelector(colorPicker);
+            censusColorPickerByIndex = new ColorPickerByIndex(data.points.rows, 'OBJECTID', '#map');
+            var styleSelector = createStyleSelector(censusColorPickerByIndex);
             $("#map").igMap('option', 'series', [{
                 name:"OBJECTID",
                 shapeStyleSelector: styleSelector
@@ -355,6 +430,18 @@ $(document).ready(function() {
         });
     });
 
+    $("#macro-reset").click(function() {
+        if(censusColorPickerByIndex) {
+            censusColorPickerByIndex.showAllTracts();
+        }
+
+        $("input[name=age][value=0]").prop('checked', true); 
+        $("input[name=ue][value=0]").prop('checked', true); 
+        $("input[name=inc][value=0]").prop('checked', true);
+        $("input[name=vac][value=0]").prop('checked', true);
+        $("input[name=pov][value=0]").prop('checked', true);
+    })
+
     $("#macro-go").click(function(){
         var age = $("input[name=age]:checked").val(); 
         var ue = $("input[name=ue]:checked").val(); 
@@ -368,35 +455,82 @@ $(document).ready(function() {
              vacancyRate:vac,
              povertyRate:pov
         }).done(function(data){
-            console.log(data);
+            console.log(data.length);
+            if(censusColorPickerByIndex) {
+                var tracts = [];
+                data.forEach(function(item) {
+                    tracts.push(item.gid);
+                });
+                censusColorPickerByIndex.showGivenTractsOnly(tracts);
+            }
         });
     });
 
     $("#micro-go").click(function(){
-        var string = "";
+        var s1 = "";
+        var s2 = "";
+        var s3 = "";
         $('input:checkbox.ct').each(function(){
             var sThisVal = (this.checked ? "1" : "0");
-            string+=sThisVal;
+            s1+=sThisVal;
+            s1+="-";
         })
-        string+=",";
+        if(!s1.includes("1")){
+            s1 = "1-1-1-1-1"
+        }
+        
         $('input:checkbox.w').each(function(){
             var sThisVal = (this.checked ? "1" : "0");
-            string+=sThisVal;
+            s2+=sThisVal;
+            s2+="-";
         })
-        string+=",";
+        if(!s2.includes("1")){
+            s2 = "1-1-1-1"
+        }
+        
         $('input:checkbox.t').each(function(){
             var sThisVal = (this.checked ? "1" : "0");
-            string+=sThisVal;
+            s3+=sThisVal;
+            s3+="-";
         })
-        console.log(string);
-        $.get('/api/filter', {
-             medianAge:age,
-             unemployment:ue,
-             medianIncome:inc,
-             vacancyRate:vac,
-             povertyRate:pov
+        if(!s3.includes("1")){
+            s3 = "1-1"
+        }
+        console.log(s1,s2,s3);
+        var max = $("#date").dateRangeSlider("max");
+        var min = $('#date').dateRangeSlider('min');
+
+        $.get('/api/getalldata', {
+             startTime: parseInt(min.getTime() / 1000),
+             endTime: parseInt(max.getTime() / 1000),
+             GID:"1-2-3-4",
+             crimeTypes:s1,
+             crimeWeather:s2,
+             crimeTime:s3
         }).done(function(data){
+            if ($.fn.DataTable.isDataTable( '#excelDataTable' ) ) {
+                    var table = $('#excelDataTable').DataTable();
+                    table.destroy();
+            }
+
+            $('#excelDataTable').show();
+            $('#excelDataTable').DataTable( {
+            data: data,
+            columns: [
+                { data: 'dcnum' },
+                { data: 'censusref' },
+                { data: 'timeofcrime' },
+                { data: 'crime' },
+                { data: 'maxtemp' },
+                { data: 'mintemp' }
+            ],
+            "order": [[ 1, "desc" ]],
+                paging: true,
+                destroy: true
+            } );
+        
             console.log(data);
+            // buildHtmlTable(data);
         });
     });
 
@@ -435,6 +569,44 @@ function getAgeVal() {
     var x = $("input[name=radio-choice-1]:checked").val(); 
     console.log(x);
 }
+
+function buildHtmlTable(myList) {
+     var columns = addAllColumnHeaders(myList);
+ 
+     for (var i = 0 ; i < myList.length ; i++) {
+         var row$ = $('<tr/>');
+         for (var colIndex = 0 ; colIndex < columns.length ; colIndex++) {
+             var cellValue = myList[i][columns[colIndex]];
+ 
+             if (cellValue == null) { cellValue = ""; }
+ 
+             row$.append($('<td/>').html(cellValue));
+         }
+         $("#excelDataTable").append(row$);
+     }
+ }
+ 
+ // Adds a header row to the table and returns the set of columns.
+ // Need to do union of keys from all records as some records may not contain
+ // all records
+ function addAllColumnHeaders(myList)
+ {
+     var columnSet = [];
+     var headerTr$ = $('<tr/>');
+ 
+     for (var i = 0 ; i < myList.length ; i++) {
+         var rowHash = myList[i];
+         for (var key in rowHash) {
+             if ($.inArray(key, columnSet) == -1){
+                 columnSet.push(key);
+                 headerTr$.append($('<th/>').html(key));
+             }
+         }
+     }
+     $("#excelDataTable").append(headerTr$);
+ 
+     return columnSet;
+ }
 
 });
 
