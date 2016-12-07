@@ -171,6 +171,9 @@ h1 {
     height: 3px;
     background: #68a1d6;
 }
+#excelDataTable{
+  margin-bottom:10%;
+}
 
 .background .viewselector .button:hover {
     cursor: pointer;
@@ -424,6 +427,9 @@ fieldset{
   border-top-color: #68b8c4;
   border-left-color: #68b8c4;
 }
+/*
+#mapid { height: 600px; }*/
+
 
 .container .mix.sm{
   width: 50px;
@@ -483,3 +489,45 @@ fieldset{
   position: relative;
   top: 3px;
 }
+
+#micro-go{
+  display: inline-block;
+  vertical-align: top;
+  padding: .5em;
+  margin-top: 10px;
+  margin-left:235px;
+  background: #68a1d6;
+  position:relative;
+  border: 0;
+  color: #eee;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+}
+ 
+#micro-go button:focus{
+  outline: 0 none;
+}
+
+#micro-clear{
+  display: inline-block;
+  vertical-align: top;
+  padding: .5em;
+  margin-top: 10px;
+  margin-left:235px;
+  background: #68a1d6;
+  position:relative;
+  border: 0;
+  color: #eee;
+  font-size: 16px;
+  font-weight: 700;
+  border-radius: 4px;
+  cursor: pointer;
+}
+ 
+#micro-clear button:focus{
+  outline: 0 none;
+}
+
+
