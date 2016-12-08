@@ -20,7 +20,11 @@ body {
     overflow-x: hidden;
     color: #666;
 }
-#map{
+.legend {
+  margin-top:10px;
+  margin-bottom: 5px;
+}
+#map, .legend {
   margin-left:90px;
 }
 #title{

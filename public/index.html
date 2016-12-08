@@ -40,7 +40,14 @@
     <div class="domMessage" id="domMessage" style="display:none;"> 
         Gathering data...please wait.
     </div> 
-
+    <script id="geoShapeTooltip" type="text/x-jquery-tmpl">
+            <table id="tooltipTable">
+                <tr>
+                    <th class="tooltipHeading" colspan="2">
+                        ${item.fieldValues.NAMELSAD10}</th>
+                </tr>
+            </table>
+    </script>
     <section class="background">
         <div class="site-width">
 
@@ -83,9 +90,9 @@
                 </div>
 
                 <div class="macro_filters" id="macro-filters">
-                    <div class="toggle-wrap">
+                    <!--<div class="toggle-wrap">
                         <input type="checkbox" id="toggleDivisions" value="1" checked>
-                    </div>
+                    </div>-->
 
                     <form class="political_filters" id="political_filters">
                         <fieldset>
@@ -313,21 +320,13 @@
 
 
                 <br>
-<div class="map-buttons">
-    <button class="button" id="center-map">Re-Center Map</button>
-</div>
-
                 <div id="Container" class="container">
+                    <div class="map-buttons">
+                        <button class="button" id="center-map">Re-Center Map</button>
+                    </div>
                     <div class="fail-message"><span>No items were found matching the selected filters</span></div>
+                    <div class="legend"<span>(gray = data has not been fetched, black = no data available, green through red = crime density)</span></div>
                     <!--Map-->
-                    <script id="geoShapeTooltip" type="text/x-jquery-tmpl">
-                        <table id="tooltipTable">
-                            <tr>
-                                <th class="tooltipHeading" colspan="2">
-                                    ${item.fieldValues.NAMELSAD10}</th>
-                            </tr>
-                        </table>
-                    </script>
                     <div id="map" />
                     <!--Map-->
                 </div>
