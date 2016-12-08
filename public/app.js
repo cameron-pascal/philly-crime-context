@@ -273,9 +273,7 @@ $(document).ready(function() {
             });
 
             var dict = {};
-            console.log(counts);
             keysSorted = Object.keys(counts).sort(function(a,b){return counts[a]-counts[b]});
-            console.log(keysSorted);
 
             Object.keys(keysSorted).forEach(function(key) {
                     var brush = interpolateColor(key);
@@ -461,7 +459,6 @@ $(document).ready(function() {
              vacancyRate:vac,
              povertyRate:pov
         }).done(function(data){
-            console.log(data.length);
             if(censusColorPickerByIndex) {
                 var tracts = [];
                 data.forEach(function(item) {
@@ -471,6 +468,23 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('#micro-clear').click(function() {
+         if ($.fn.DataTable.isDataTable( '#excelDataTable' ) ) {
+                var table = $('#excelDataTable').DataTable();
+                table.destroy();
+            }
+        $("#excelDataTable").hide();
+        $('input:checkbox.ct:checked').each(function(key, value) {
+            $(value).prop('checked', false);
+        })
+        $('input:checkbox.w:checked').each(function(key, value) {
+            $(value).prop('checked', false);
+        })
+        $('input:checkbox.t:checked').each(function(key, value) {
+            $(value).prop('checked', false);
+        })
+    })
 
     $("#micro-go").click(function(){
         var s1 = "";
@@ -502,7 +516,6 @@ $(document).ready(function() {
         if(!s3.includes("1")){
             s3 = "1-1"
         }
-        console.log(s1,s2,s3);
         var max = $("#date").dateRangeSlider("max");
         var min = $('#date').dateRangeSlider('min');
 
@@ -535,7 +548,6 @@ $(document).ready(function() {
                 destroy: true
             } );
         
-            console.log(data);
             // buildHtmlTable(data);
         });
     });
@@ -551,14 +563,6 @@ $(document).ready(function() {
 
 
         var crimes = nonv+violent+propcrime+sexcrime+homicide;
-        console.log(crimes);
-        // var crimeData = [
-        //     { "CrimeType": "Homicide", "Incidents": homicide}, 
-        //     { "CrimeType": "Sex Crime", "Incidents": sexcrime}, 
-        //     { "CrimeType": "Non-Violent / Other", "Incidents": nonv},
-        //     { "CrimeType": "Property Crime", "Incidents": propcrime}, 
-        //     { "CrimeType": "Violent Crime", "Incidents": violent }
-        // ];
         document.getElementById("start-date").innerHTML = sDate.toLocaleDateString();
         document.getElementById("end-date").innerHTML = eDate.toLocaleDateString();
 
@@ -573,7 +577,6 @@ $(document).ready(function() {
 
 function getAgeVal() {
     var x = $("input[name=radio-choice-1]:checked").val(); 
-    console.log(x);
 }
 
 function buildHtmlTable(myList) {
