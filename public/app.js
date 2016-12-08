@@ -3,19 +3,19 @@ $(document).ready(function() {
     $("#city_filters").toggle();
     $("#city_summary").toggle();
     $("#excelDataTable").hide();
-    $('#toggleDivisions').val($(this).is(':checked'));
+   // $('#toggleDivisions').val($(this).is(':checked'));
 
     $("#cityLevel").click(function() {
         $("#crime-filters:visible").toggle("medium");
         $("#macro-filters").toggle("medium");
-        $("#map").show();
+        $(".container").show();
 
 
     });
     
     $("#streetLevel").click(function() {
         $("#macro-filters:visible").toggle("medium");
-        $("#map:visible").toggle();
+        $(".container:visible").toggle();
         $("#crime-filters").toggle("medium");
     });
 
@@ -98,12 +98,12 @@ $(document).ready(function() {
         },
         series: [{
             type: "geographicShape",
-            name: "politicalWards",
-            shapeDataSource: "./assets/Political_Wards.shp",
-            databaseSource: "./assets/wards.dbf",
+            name: "censusTracts",
+            shapeDataSource: "./assets/Census_Tracts_2010.shp",
+            databaseSource: "./assets/Census_Tracts_2010.dbf",
             opacity: 0.8,
             outlineThickness: 1,
-            showTooltip: false,
+            showTooltip: true,
             tooltipTemplate: "geoShapeTooltip"
         }]
     });
@@ -287,8 +287,7 @@ $(document).ready(function() {
 
         var brushes = getBrushDict(crimes);
         
-        function initVisibleTracts() {
-            var noDataTracts = [ 
+        var noDataTracts = [ 
                 { gid: 127 },
                 { gid: 299 },
                 { gid: 324 },
@@ -305,17 +304,23 @@ $(document).ready(function() {
                 { gid: 344 },
                 { gid: 331 } 
             ];
-            
+        var noDataDict = {};
+        noDataTracts.forEach(function(item) {
+            noDataDict[item.gid] = true;
+        });
+
+        function initVisibleTracts() {
             var visibleDict = {};
-            noDataTracts.forEach(function(item) {
-                visibleDict[item.gid] = true;
-            });
 
             return visibleDict;
         }
 
         var visibleTracts = initVisibleTracts();
         var shouldShowAll = true;
+
+        this.hasNoData = function(tractId) {
+            return noDataDict[tractId] === true;
+        }
 
         this.hideAllTracts = function() {
             visibleTracts = initVisibleTracts();
@@ -338,8 +343,13 @@ $(document).ready(function() {
         }
 
         this.getColorByIndex = function (val) {
+            
             if (shouldShowAll === true || visibleTracts[val] === true) {
                     return brushes[val];
+            }
+
+            if (noDataDict[val]) {
+                return 'black';
             }
 
             return "#ffffff";;
@@ -351,9 +361,10 @@ $(document).ready(function() {
             selectStyle: function(shape) {
                 var tract = shape.fields.item("OBJECTID");
                 var brush = colorPicker.getColorByIndex(tract);
+
                 return {
                     fill: brush
-                }
+                };
             }
         }
     }
@@ -373,29 +384,24 @@ $(document).ready(function() {
 
             var cData = data.totalCrimes.rows[0];
             showSummary(parseInt(cData.nonviolent),parseInt(cData.violent),parseInt(cData.property),parseInt(cData.sexualcrimes),parseInt(cData.homicide));
-            censusColorPickerByIndex = new ColorPickerByIndex(data.points.rows, 'OBJECTID', '#map');
+            censusColorPickerByIndex = new ColorPickerByIndex(data.points.rows, 'censusTracts', '#map');
             var styleSelector = createStyleSelector(censusColorPickerByIndex);
             $("#map").igMap('option', 'series', [{
-                name:"OBJECTID",
+                name:"censusTracts",
                 shapeStyleSelector: styleSelector
             }]);
         });
     })
 
-    $("#toggleDivisions").switchButton({
-        on_label: 'Political Ward Data',
-        off_label: 'Census Tract Data',
-        checked: true,
-        width: 100,
-        height: 30,
-        button_width: 50
-    });
-
+    // REMOVE THIS CODE AND REENABLE POLITICAL WARDS.
+    $("#political_filters:visible").toggle("medium");
+    $("#city_filters").toggle("medium");
+    /* REENABLE THIS CODE TO GET WARDS BACK
     $("#toggleDivisions").change(function() {
         if ($("#toggleDivisions").is(":checked")) {
             $("#map").igMap("option", "series", [{
                 type: "geographicShape",
-                name: "OBJECTID",
+                name: "censusTracts",
                 shapeDataSource: "./assets/wards.shp",
                 databaseSource: "./assets/wards.dbf",
                 opacity: 0.8,
@@ -408,7 +414,7 @@ $(document).ready(function() {
         } else {
             $("#map").igMap("option", "series", [{
                 type: "geographicShape",
-                name: "OBJECTID",
+                name: "censusTracts",
                 shapeDataSource: "./assets/Census_Tracts_2010.shp",
                 databaseSource: "./assets/Census_Tracts_2010.dbf",
                 opacity: 0.8,
@@ -419,7 +425,7 @@ $(document).ready(function() {
             $("#political_filters:visible").toggle("medium");
             $("#city_filters").toggle("medium");
         }
-    });
+    });*/
 
     $("#center-map").click(function() {
         $("#map").igMap("option", "windowRect", {
